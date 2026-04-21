@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Andrej Kneisl — Career Portfolio</title>
+
+    <!-- Premium typefaces: Cormorant Garamond (display) + DM Sans (body) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body class="font-medium ats-mode">
+
+    <!-- ========================================
+         STICKY HEADER
+         ======================================== -->
+    <header class="header">
+        <div class="header-content">
+            <div class="brand">
+                <h1 class="name" id="header-name">Andrej Kneisl</h1>
+                <span class="headline" data-i18n="header.headline">Business Development Analyst | GTM Support | Commercial Operations</span>
+            </div>
+            <div class="header-actions">
+                <!-- Language selector — controls entire app language -->
+                <select id="header-language-select" class="language-select" title="Select language">
+                    <option value="en">EN</option>
+                    <option value="de">DE</option>
+                    <option value="sk">SK</option>
+                    <option value="es">ES</option>
+                </select>
+                <!-- Public mode toggle — switches to recruiter-facing view -->
+                <button class="btn btn-ghost" id="public-mode-toggle" onclick="togglePublicMode()" title="Toggle public view">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                        <circle cx="12" cy="12" r="3"/>
+                    </svg>
+                </button>
+            </div>
+        </div>
+
+        <!-- Tab Navigation -->
+        <nav class="tab-nav" id="tab-nav">
+            <button class="tab-btn active" data-tab="cv">
+                <span data-i18n="tabs.cv">CV</span>
+            </button>
+            <button class="tab-btn" data-tab="deck">
+                <span data-i18n="tabs.deck">Pitch Deck</span>
+            </button>
+            <button class="tab-btn" data-tab="cover-letter">
+                <span data-i18n="tabs.coverLetter">Cover Letter</span>
+            </button>
+            <button class="tab-btn" data-tab="settings" id="settings-tab-btn">
+                <span data-i18n="tabs.settings">Settings</span>
+            </button>
+        </nav>
+    </header>
+
+    <!-- ========================================
+         MAIN CONTENT
+         ======================================== -->
+    <main class="main-content">
+
+        <!-- ========================================
+             TAB 1: CV
+             ======================================== -->
+        <section id="cv" class="tab-content active">
+            <div class="cv-container">
+
+                <!-- CV Header -->
+                <div class="cv-header">
+                    <!-- Profile photo — shown only in Premium Profile Mode -->
+                    <div class="cv-header-photo" id="cv-header-photo">
+                        <img src="images/profile.jpg" alt="Andrej Kneisl" id="cv-profile-photo" style="display:none;">
+                    </div>
+
+                    <div class="cv-header-main">
+                        <h2 class="cv-name" id="cv-name">Andrej Kneisl</h2>
+                        <p class="cv-headline" data-i18n="cv.headline">Business Development Analyst | GTM Support | Commercial Operations</p>
+                        <!-- Document timestamp — controlled by date/time settings -->
+                        <p class="cv-timestamp" id="cv-timestamp" style="display:none;"></p>
+                    </div>
+
+                    <!-- Contact block -->
+                    <div class="cv-contact" id="cv-contact">
+                        <div class="contact-item">
+                            <span class="contact-label" data-i18n="cv.email">Email</span>
+                            <a href="mailto:Kneisl.andrej@icloud.com" class="contact-link" id="contact-email-primary">Kneisl.andrej@icloud.com</a>
+                        </div>
+                        <div class="contact-item">
+                            <span class="contact-label" data-i18n="cv.secondaryEmail">Secondary Email</span>
+                            <a href="mailto:info@andykgroupinternational.com" class="contact-link" id="contact-email-secondary">info@andykgroupinternational.com</a>
+                        </div>
+                        <div class="contact-item">
+                            <span class="contact-label" data-i18n="cv.phone">Phone</span>
+                            <a href="tel:+443300271319" class="contact-link" id="contact-phone">+44 330 027 1319</a>
+                        </div>
+                        <div class="contact-item">
+                            <span class="contact-label" data-i18n="cv.website">Website</span>
+                            <a href="https://www.andykgroupinternational.com" target="_blank" class="contact-link" id="contact-website">www.andykgroupinternational.com</a>
+                        </div>
+                        <div class="contact-item">
+                            <span class="contact-label" data-i18n="cv.location">Location</span>
+                            <span class="contact-value" id="contact-location">Asunción, Paraguay</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- CV Actions (hidden in public mode) -->
+                <div class="cv-actions">
+                    <button class="btn btn-primary" onclick="exportCV()">
+                        <span data-i18n="cv.exportPDF">Export CV to PDF</span>
+                    </button>
+                    <button class="btn btn-secondary" onclick="copyCVSummary()">
+                        <span data-i18n="cv.copySummary">Copy Summary</span>
+                    </button>
+                    <button class="btn btn-secondary" onclick="toggleCVView()">
+                        <span id="cv-view-toggle-text" data-i18n="cv.compactView">Compact View</span>
+                    </button>
+                </div>
+
+                <!-- CV Sections -->
+                <div class="cv-sections">
+                    <section class="cv-section">
+                        <h3 class="cv-section-title" data-i18n="cv.summary">Professional Summary</h3>
+                        <div class="cv-section-content">
+                            <p class="cv-summary-text" data-i18n="cv.summaryText"></p>
+                        </div>
+                    </section>
+
+                    <section class="cv-section">
+                        <h3 class="cv-section-title" data-i18n="cv.strengths">Core Strengths</h3>
+                        <div class="cv-section-content">
+                            <ul class="strengths-list" id="strengths-list"></ul>
+                        </div>
+                    </section>
+
+                    <section class="cv-section">
+                        <h3 class="cv-section-title" data-i18n="cv.experience">Work Experience</h3>
+                        <div class="cv-section-content" id="experience-list"></div>
+                    </section>
+
+                    <section class="cv-section">
+                        <h3 class="cv-section-title" data-i18n="cv.education">Education</h3>
+                        <div class="cv-section-content" id="education-list"></div>
+                    </section>
+
+                    <section class="cv-section">
+                        <h3 class="cv-section-title" data-i18n="cv.tools">Tools &amp; AI Tools</h3>
+                        <div class="cv-section-content">
+                            <ul class="tools-list" id="tools-list"></ul>
+                        </div>
+                    </section>
+
+                    <section class="cv-section">
+                        <h3 class="cv-section-title" data-i18n="cv.languages">Languages</h3>
+                        <div class="cv-section-content">
+                            <ul class="languages-list" id="languages-list"></ul>
+                        </div>
+                    </section>
+                </div>
+            </div>
+        </section>
+
+        <!-- ========================================
+             TAB 2: PITCH DECK
+             ======================================== -->
+        <section id="deck" class="tab-content">
+            <div class="deck-container">
+                <div class="deck-actions">
+                    <button class="btn btn-primary" onclick="exportDeck()">
+                        <span data-i18n="deck.exportPDF">Export Deck to PDF</span>
+                    </button>
+                    <button class="btn btn-secondary" id="deck-pres-btn" onclick="togglePresentationMode()">
+                        <span data-i18n="deck.presentationMode">Presentation Mode</span>
+                    </button>
+                </div>
+
+                <div class="deck-slides-wrapper">
+                    <div class="deck-slides" id="deck-slides">
+
+                        <!-- Slide 1: Cover -->
+                        <div class="deck-slide active" data-slide="0">
+                            <div class="slide-content cover-slide">
+                                <div class="cover-photo-wrapper" id="cover-photo-wrapper">
+                                    <img src="images/profile.jpg" alt="Andrej Kneisl" class="cover-photo" id="cover-profile-photo" style="display:none;">
+                                </div>
+                                <h2 class="slide-name" id="deck-cover-name">Andrej Kneisl</h2>
+                                <p class="slide-headline" data-i18n="deck.headline">Business Development Analyst | GTM Support | Commercial Operations</p>
+                                <p class="slide-subtitle" data-i18n="deck.coverSubtitle">Structured commercial support for international, remote-friendly teams.</p>
+                                <p class="slide-intro" data-i18n="deck.coverIntro"></p>
+                                <p class="slide-timestamp" id="deck-timestamp" style="display:none;"></p>
+                            </div>
+                        </div>
+
+                        <!-- Slide 2: Professional Positioning -->
+                        <div class="deck-slide" data-slide="1">
+                            <div class="slide-content">
+                                <h3 class="slide-title" data-i18n="deck.positioningTitle">Professional Positioning</h3>
+                                <p class="slide-text" data-i18n="deck.positioningText"></p>
+                            </div>
+                        </div>
+
+                        <!-- Slide 3: What I Bring -->
+                        <div class="deck-slide" data-slide="2">
+                            <div class="slide-content">
+                                <h3 class="slide-title" data-i18n="deck.whatIBringTitle">What I Bring</h3>
+                                <ul class="slide-list" id="what-i-bring-list"></ul>
+                            </div>
+                        </div>
+
+                        <!-- Slide 4: Core Strengths -->
+                        <div class="deck-slide" data-slide="3">
+                            <div class="slide-content">
+                                <h3 class="slide-title" data-i18n="deck.coreStrengthsTitle">Core Strengths</h3>
+                                <ul class="slide-list" id="deck-strengths-list"></ul>
+                            </div>
+                        </div>
+
+                        <!-- Slide 5: Work Style -->
+                        <div class="deck-slide" data-slide="4">
+                            <div class="slide-content">
+                                <h3 class="slide-title" data-i18n="deck.workStyleTitle">Work Style</h3>
+                                <ul class="slide-list" id="work-style-list"></ul>
+                            </div>
+                        </div>
+
+                        <!-- Slide 6: Ideal Role Fit -->
+                        <div class="deck-slide" data-slide="5">
+                            <div class="slide-content">
+                                <h3 class="slide-title" data-i18n="deck.idealRoleTitle">Ideal Role Fit</h3>
+                                <ul class="slide-list" id="ideal-role-list"></ul>
+                            </div>
+                        </div>
+
+                        <!-- Slide 7: International Advantage -->
+                        <div class="deck-slide" data-slide="6">
+                            <div class="slide-content">
+                                <h3 class="slide-title" data-i18n="deck.internationalTitle">International Advantage</h3>
+                                <p class="slide-text" data-i18n="deck.internationalText"></p>
+                            </div>
+                        </div>
+
+                        <!-- Slide 8: Contact -->
+                        <div class="deck-slide" data-slide="7">
+                            <div class="slide-content contact-slide">
+                                <div class="contact-photo-wrapper" id="contact-photo-wrapper">
+                                    <img src="images/profile.jpg" alt="Andrej Kneisl" class="contact-photo" id="contact-profile-photo" style="display:none;">
+                                </div>
+                                <h3 class="slide-title" data-i18n="deck.contactTitle">Contact</h3>
+                                <div class="slide-contact">
+                                    <p><strong id="contact-name-deck">Andrej Kneisl</strong></p>
+                                    <p data-i18n="deck.headline">Business Development Analyst | GTM Support | Commercial Operations</p>
+                                    <p class="contact-detail"><a href="mailto:Kneisl.andrej@icloud.com" class="contact-link-inline" id="deck-contact-email">Kneisl.andrej@icloud.com</a></p>
+                                    <p class="contact-detail"><a href="tel:+443300271319" class="contact-link-inline" id="deck-contact-phone">+44 330 027 1319</a></p>
+                                    <p class="contact-detail"><a href="https://www.andykgroupinternational.com" target="_blank" class="contact-link-inline" id="deck-contact-website">www.andykgroupinternational.com</a></p>
+                                    <p class="contact-detail" id="deck-contact-location">Asunción, Paraguay</p>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+                <div class="deck-navigation">
+                    <button class="deck-nav-btn" onclick="prevSlide()" aria-label="Previous slide">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+                    </button>
+                    <div class="deck-indicators" id="deck-indicators"></div>
+                    <button class="deck-nav-btn" onclick="nextSlide()" aria-label="Next slide">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- ========================================
+             TAB 3: COVER LETTER
+             ======================================== -->
+        <section id="cover-letter" class="tab-content">
+            <div class="cover-letter-container">
+                <div class="cover-letter-actions">
+                    <button class="btn btn-primary" onclick="generateCoverLetter()">
+                        <span data-i18n="coverLetter.generate">Generate Cover Letter</span>
+                    </button>
+                    <button class="btn btn-secondary" onclick="resetCoverLetter()">
+                        <span data-i18n="coverLetter.reset">Reset</span>
+                    </button>
+                    <button class="btn btn-secondary" onclick="copyCoverLetter()">
+                        <span data-i18n="coverLetter.copy">Copy Text</span>
+                    </button>
+                    <button class="btn btn-secondary" onclick="exportCoverLetter()">
+                        <span data-i18n="coverLetter.exportPDF">Export to PDF</span>
+                    </button>
+                </div>
+
+                <div class="cover-letter-form">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="cl-company" data-i18n="coverLetter.companyName">Company Name</label>
+                            <input type="text" id="cl-company" data-i18n-placeholder="coverLetter.companyPlaceholder" placeholder="e.g. TechCorp GmbH">
+                        </div>
+                        <div class="form-group">
+                            <label for="cl-role" data-i18n="coverLetter.roleTitle">Role Title</label>
+                            <input type="text" id="cl-role" data-i18n-placeholder="coverLetter.rolePlaceholder" placeholder="e.g. Business Development Analyst">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="cl-manager" data-i18n="coverLetter.hiringManager">Hiring Manager Name</label>
+                            <input type="text" id="cl-manager" data-i18n-placeholder="coverLetter.managerPlaceholder" placeholder="e.g. Ms. Schmidt">
+                        </div>
+                        <div class="form-group">
+                            <label for="cl-source" data-i18n="coverLetter.jobSource">Job Source</label>
+                            <input type="text" id="cl-source" data-i18n-placeholder="coverLetter.sourcePlaceholder" placeholder="e.g. LinkedIn">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group full-row">
+                            <label for="cl-focus" data-i18n="coverLetter.mainFocus">Main Focus of Role</label>
+                            <input type="text" id="cl-focus" data-i18n-placeholder="coverLetter.focusPlaceholder" placeholder="e.g. Market research and pipeline management">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group full-row">
+                            <label for="cl-skills" data-i18n="coverLetter.keySkills">Key Skills to Emphasize</label>
+                            <input type="text" id="cl-skills" data-i18n-placeholder="coverLetter.skillsPlaceholder" placeholder="e.g. CRM discipline, reporting, GTM support">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="cl-language" data-i18n="coverLetter.language">Language</label>
+                            <select id="cl-language">
+                                <option value="en" data-i18n="coverLetter.langEnglish">English</option>
+                                <option value="de" data-i18n="coverLetter.langGerman">German</option>
+                                <option value="sk" data-i18n="coverLetter.langSlovak">Slovak</option>
+                                <option value="es" data-i18n="coverLetter.langSpanish">Spanish</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="cl-tone" data-i18n="coverLetter.tone">Tone</label>
+                            <select id="cl-tone">
+                                <option value="professional" data-i18n="coverLetter.toneProfessional">Professional</option>
+                                <option value="warm" data-i18n="coverLetter.toneWarm">Warm Professional</option>
+                                <option value="direct" data-i18n="coverLetter.toneDirect">More Direct / Executive</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="cover-letter-output">
+                    <label data-i18n="coverLetter.preview">Preview</label>
+                    <textarea id="cl-preview" class="cl-textarea" rows="22"></textarea>
+                    <!-- Hidden div used for clean PDF print output -->
+                    <div id="cl-print-output" class="cl-print-output"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ========================================
+             TAB 4: SETTINGS
+             ======================================== -->
+        <section id="settings" class="tab-content">
+            <div class="settings-container">
+                <h2 class="settings-title" data-i18n="settings.title">Settings</h2>
+
+                <!-- Personal Information -->
+                <div class="settings-section">
+                    <h3 class="settings-section-title" data-i18n="settings.personalInfo">Personal Information</h3>
+
+                    <div class="setting-item setting-item-vertical">
+                        <label for="settings-full-name" data-i18n="settings.labelFullName">Full Name</label>
+                        <input type="text" id="settings-full-name" placeholder="Andrej Kneisl" class="settings-input-full">
+                    </div>
+                    <div class="setting-item setting-item-vertical">
+                        <label for="settings-primary-email" data-i18n="settings.labelPrimaryEmail">Primary Email</label>
+                        <input type="email" id="settings-primary-email" placeholder="Kneisl.andrej@icloud.com" class="settings-input-full">
+                    </div>
+                    <div class="setting-item setting-item-vertical">
+                        <label for="settings-secondary-email" data-i18n="settings.labelSecondaryEmail">Secondary Email</label>
+                        <input type="email" id="settings-secondary-email" placeholder="info@andykgroupinternational.com" class="settings-input-full">
+                    </div>
+                    <div class="setting-item setting-item-vertical">
+                        <label for="settings-phone" data-i18n="settings.labelPhone">Phone</label>
+                        <input type="tel" id="settings-phone" placeholder="+44 330 027 1319" class="settings-input-full">
+                    </div>
+                    <div class="setting-item setting-item-vertical">
+                        <label for="settings-website" data-i18n="settings.labelWebsite">Website</label>
+                        <input type="url" id="settings-website" placeholder="www.andykgroupinternational.com" class="settings-input-full">
+                    </div>
+                    <div class="setting-item setting-item-vertical">
+                        <label for="settings-location" data-i18n="settings.labelLocation">Location</label>
+                        <input type="text" id="settings-location" placeholder="Asunción, Paraguay" class="settings-input-full">
+                    </div>
+                    <div class="setting-item setting-item-vertical">
+                        <label for="settings-linkedin" data-i18n="settings.labelLinkedIn">LinkedIn</label>
+                        <input type="text" id="settings-linkedin" placeholder="linkedin.com/in/yourprofile" class="settings-input-full">
+                    </div>
+                    <div class="setting-item setting-item-vertical">
+                        <label for="settings-profile-photo" data-i18n="settings.labelPhoto">Profile Photo Path</label>
+                        <input type="text" id="settings-profile-photo" placeholder="images/profile.jpg" class="settings-input-full">
+                        <small class="setting-hint" data-i18n="settings.photoHint">Recommended: 400×400px JPG, professional headshot</small>
+                    </div>
+                    <div class="setting-item">
+                        <label></label>
+                        <button class="btn btn-primary" onclick="savePersonalInfo()">
+                            <span data-i18n="settings.savePersonalInfo">Save Personal Info</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Appearance -->
+                <div class="settings-section">
+                    <h3 class="settings-section-title" data-i18n="settings.appearance">Appearance</h3>
+
+                    <div class="setting-item">
+                        <label for="settings-profile-mode" data-i18n="settings.profileMode">Profile Mode</label>
+                        <select id="settings-profile-mode">
+                            <option value="ats" data-i18n="settings.modeATS">ATS Mode (Document)</option>
+                            <option value="premium" data-i18n="settings.modePremium">Premium Profile Mode</option>
+                        </select>
+                    </div>
+                    <div class="setting-item">
+                        <label for="settings-language" data-i18n="settings.language">Language</label>
+                        <select id="settings-language">
+                            <option value="en">English</option>
+                            <option value="de">Deutsch</option>
+                            <option value="sk">Slovenčina</option>
+                            <option value="es">Español</option>
+                        </select>
+                    </div>
+                    <div class="setting-item">
+                        <label for="settings-font-size" data-i18n="settings.fontSize">Font Size</label>
+                        <select id="settings-font-size">
+                            <option value="small" data-i18n="settings.fontSizeSmall">Small</option>
+                            <option value="medium" selected data-i18n="settings.fontSizeMedium">Medium</option>
+                            <option value="large" data-i18n="settings.fontSizeLarge">Large</option>
+                        </select>
+                    </div>
+                    <div class="setting-item">
+                        <label for="settings-startup-tab" data-i18n="settings.defaultTab">Default Startup Tab</label>
+                        <select id="settings-startup-tab">
+                            <option value="cv" data-i18n="tabs.cv">CV</option>
+                            <option value="deck" data-i18n="tabs.deck">Pitch Deck</option>
+                            <option value="cover-letter" data-i18n="tabs.coverLetter">Cover Letter</option>
+                        </select>
+                    </div>
+                    <div class="setting-item">
+                        <label for="settings-compact-cv" data-i18n="settings.compactCV">Compact CV View</label>
+                        <input type="checkbox" id="settings-compact-cv">
+                    </div>
+                    <div class="setting-item">
+                        <label for="settings-show-contact" data-i18n="settings.showContact">Show Contact Details</label>
+                        <input type="checkbox" id="settings-show-contact" checked>
+                    </div>
+                    <div class="setting-item">
+                        <label for="settings-show-photo" data-i18n="settings.showPhoto">Show Profile Photo</label>
+                        <input type="checkbox" id="settings-show-photo">
+                    </div>
+                </div>
+
+                <!-- Date & Time -->
+                <div class="settings-section">
+                    <h3 class="settings-section-title" data-i18n="settings.dateTime">Date &amp; Time</h3>
+
+                    <div class="setting-item">
+                        <label for="settings-show-date" data-i18n="settings.showDate">Show Date</label>
+                        <input type="checkbox" id="settings-show-date">
+                    </div>
+                    <div class="setting-item">
+                        <label for="settings-show-time" data-i18n="settings.showTime">Show Time</label>
+                        <input type="checkbox" id="settings-show-time">
+                    </div>
+                    <div class="setting-item">
+                        <label for="settings-date-format" data-i18n="settings.dateFormat">Date Format</label>
+                        <select id="settings-date-format">
+                            <option value="YYYY-MM-DD">YYYY-MM-DD</option>
+                            <option value="DD.MM.YYYY">DD.MM.YYYY</option>
+                            <option value="MM/DD/YYYY">MM/DD/YYYY</option>
+                            <option value="DD MMM YYYY">DD MMM YYYY</option>
+                        </select>
+                    </div>
+                    <div class="setting-item">
+                        <label for="settings-time-format" data-i18n="settings.timeFormat">Time Format</label>
+                        <select id="settings-time-format">
+                            <option value="12" data-i18n="settings.timeFormat12h">12-hour (AM/PM)</option>
+                            <option value="24" data-i18n="settings.timeFormat24h">24-hour</option>
+                        </select>
+                    </div>
+                    <div class="setting-item">
+                        <label for="settings-doc-timestamp" data-i18n="settings.docTimestamp">Document Timestamp on PDFs</label>
+                        <input type="checkbox" id="settings-doc-timestamp">
+                    </div>
+                </div>
+
+                <!-- Pitch Deck -->
+                <div class="settings-section">
+                    <h3 class="settings-section-title" data-i18n="settings.pitchDeck">Pitch Deck</h3>
+                    <div class="setting-item">
+                        <label for="settings-transition-speed" data-i18n="settings.transitionSpeed">Transition Speed</label>
+                        <select id="settings-transition-speed">
+                            <option value="fast" data-i18n="settings.speedFast">Fast</option>
+                            <option value="normal" selected data-i18n="settings.speedNormal">Normal</option>
+                            <option value="slow" data-i18n="settings.speedSlow">Slow</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- ========================================
+                     SHAREABLE PUBLIC LINK
+                     URL-based public mode with language param
+                     ======================================== -->
+                <div class="settings-section">
+                    <h3 class="settings-section-title" data-i18n="settings.publicLink">Shareable Public Link</h3>
+
+                    <div class="setting-item">
+                        <label data-i18n="settings.publicLinkDesc">Recruiter-facing link with selected language</label>
+                        <button class="btn btn-primary" onclick="generatePublicLink()">
+                            <span data-i18n="settings.generateLink">Generate Link</span>
+                        </button>
+                    </div>
+
+                    <!-- Public link output — hidden until generated -->
+                    <div id="public-link-display" class="public-link-row" style="display:none;">
+                        <input type="text" id="public-link-input" class="settings-input-full" readonly>
+                        <button class="btn btn-secondary" onclick="copyPublicLink()">
+                            <span data-i18n="settings.copyLink">Copy Link</span>
+                        </button>
+                    </div>
+
+                    <div class="setting-item">
+                        <span class="setting-hint" data-i18n="settings.publicLinkNote">Format: ?view=public&amp;lang=en — opens directly in public mode with the selected language.</span>
+                    </div>
+                </div>
+
+                <!-- Print & Export -->
+                <div class="settings-section">
+                    <h3 class="settings-section-title" data-i18n="settings.print">Print &amp; Export</h3>
+                    <div class="setting-item">
+                        <label for="settings-print-optimized" data-i18n="settings.printOptimized">Print Optimized</label>
+                        <input type="checkbox" id="settings-print-optimized" checked>
+                    </div>
+                </div>
+
+                <!-- Data Management -->
+                <div class="settings-section">
+                    <h3 class="settings-section-title" data-i18n="settings.data">Data Management</h3>
+                    <div class="setting-item">
+                        <label data-i18n="settings.resetPreferences">Reset All Preferences</label>
+                        <button class="btn btn-danger" onclick="resetAllSettings()">
+                            <span data-i18n="settings.resetButton">Reset</span>
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+    </main>
+
+    <script src="script.js"></script>
+</body>
+</html>
