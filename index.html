@@ -560,6 +560,14 @@
 
     </main>
 
+    <!--
+        CV PRINT CONTAINER
+        Hidden in live UI. exportCV() fills this with clean, flat HTML
+        and body.printing-cv shows only this div during print.
+        No grid, no flex lists — pure block layout to avoid Chrome PDF bugs.
+    -->
+    <div id="cv-print-container" class="cv-print-container"></div>
+
     <script src="script.js"></script>
 </body>
 </html>

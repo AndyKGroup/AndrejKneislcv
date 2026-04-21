@@ -834,11 +834,9 @@ document.addEventListener('DOMContentLoaded', () => {
     initializeTabs();
     initializeLanguageSwitchers();
     initializeSettings();
-    renderCV();
-    renderDeck();
     initializeDeckNavigation();
     loadCoverLetter();
-    applySettings();
+    applySettings();            // calls updateLanguage → renderCV + renderDeck (single render)
     updatePersonalInfoDisplay();
     updateTimestamps();
     checkURLParams();           // PUBLIC MODE: check for ?view=public&lang=xx
@@ -1036,21 +1034,18 @@ function saveSettings() {
 }
 
 function applySettings() {
-    // Font size class on body
-    document.body.className = document.body.className
-        .replace(/font-(small|medium|large)/g, '')
-        .trim() + ` font-${settings.fontSize}`;
+    // Font size — rebuild body class, preserve any active printing-* classes
+    const keep = ['printing-cv','printing-deck','printing-cl'].filter(c => document.body.classList.contains(c));
+    document.body.className = `font-${settings.fontSize}`;
+    keep.forEach(c => document.body.classList.add(c));
 
-    // Profile mode class
+    // Profile mode
     document.body.classList.remove('ats-mode', 'premium-mode');
     document.body.classList.add(`${settings.profileMode}-mode`);
 
-    // Compact CV toggle
+    // Compact CV
     const cvContainer = document.querySelector('.cv-container');
     if (cvContainer) cvContainer.classList.toggle('compact', settings.compactCV);
-    const toggleText = document.getElementById('cv-view-toggle-text');
-    if (toggleText) toggleText.textContent =
-        settings.compactCV ? translations[currentLanguage].cv.fullWidthView : translations[currentLanguage].cv.compactView;
 
     // Contact visibility
     const cvContact = document.querySelector('.cv-contact');
@@ -1060,31 +1055,26 @@ function applySettings() {
     const speedMap = { fast: '120ms', normal: '240ms', slow: '380ms' };
     document.documentElement.style.setProperty('--transition-normal', speedMap[settings.transitionSpeed] || '240ms');
 
-    // Sync settings UI controls
-    setValue('settings-language',         settings.language);
-    setValue('settings-font-size',        settings.fontSize);
-    setValue('settings-startup-tab',      settings.defaultTab);
-    setValue('settings-profile-mode',     settings.profileMode);
-    setValue('settings-transition-speed', settings.transitionSpeed);
-    setChecked('settings-compact-cv',     settings.compactCV);
-    setChecked('settings-show-contact',   settings.showContact);
-    setChecked('settings-show-photo',     settings.showPhoto);
+    // Sync settings panel UI
+    setValue('settings-language',          settings.language);
+    setValue('settings-font-size',         settings.fontSize);
+    setValue('settings-startup-tab',       settings.defaultTab);
+    setValue('settings-profile-mode',      settings.profileMode);
+    setValue('settings-transition-speed',  settings.transitionSpeed);
+    setChecked('settings-compact-cv',      settings.compactCV);
+    setChecked('settings-show-contact',    settings.showContact);
+    setChecked('settings-show-photo',      settings.showPhoto);
     setChecked('settings-print-optimized', settings.printOptimized);
-
-    // Date & Time controls
-    setChecked('settings-show-date',   settings.dateTime.showDate);
-    setChecked('settings-show-time',   settings.dateTime.showTime);
-    setValue('settings-date-format',   settings.dateTime.dateFormat);
-    setValue('settings-time-format',   settings.dateTime.timeFormat);
-    setChecked('settings-doc-timestamp', settings.dateTime.docTimestamp);
-
-    // Sync header language selector
-    setValue('header-language-select', settings.language);
+    setChecked('settings-show-date',       settings.dateTime.showDate);
+    setChecked('settings-show-time',       settings.dateTime.showTime);
+    setValue('settings-date-format',       settings.dateTime.dateFormat);
+    setValue('settings-time-format',       settings.dateTime.timeFormat);
+    setChecked('settings-doc-timestamp',   settings.dateTime.docTimestamp);
 
     // Switch to default startup tab
     switchTab(settings.defaultTab);
 
-    // Apply language
+    // Apply full language: translates all [data-i18n] + renders CV/deck once
     updateLanguage(settings.language);
 
     updatePersonalInfoDisplay();
@@ -1199,9 +1189,22 @@ function updateLanguage(lang) {
         if (value !== undefined) el.setAttribute('placeholder', value);
     });
 
-    // Re-render dynamic content
+    // Re-render dynamic content (once)
     renderCV();
     renderDeck();
+
+    // Update compact view toggle text to current language
+    const toggleText = document.getElementById('cv-view-toggle-text');
+    if (toggleText) toggleText.textContent =
+        settings.compactCV
+            ? (translations[lang].cv.fullWidthView || 'Full View')
+            : (translations[lang].cv.compactView   || 'Compact View');
+
+    // Sync both language selectors
+    const headerSel   = document.getElementById('header-language-select');
+    const settingsSel = document.getElementById('settings-language');
+    if (headerSel)   headerSel.value   = lang;
+    if (settingsSel) settingsSel.value = lang;
 
     // Sync cover letter language selector
     const clLang = document.getElementById('cl-language');
@@ -1306,15 +1309,159 @@ function renderCV() {
     if (ll) ll.innerHTML = cvData.languages.map(l => `<li><strong>${l.language}:</strong> ${l.level}</li>`).join('');
 }
 
-// CV actions
+// ========================================
+// BUILD PRINT CV
+// Generates a clean, flat HTML string for PDF export.
+// Uses CSS columns (not grid) so Chrome PDF renders correctly.
+// All content is block-level — no flex/grid lists that cause duplication.
+// ========================================
+function buildPrintCV() {
+    const t    = translations[currentLanguage] || translations.en;
+    const info = personalInfo;
+    const showPhoto = settings.showPhoto && settings.profileMode === 'premium';
+
+    // Timestamp
+    let tsHtml = '';
+    if (settings.dateTime.docTimestamp) {
+        const ts = formatDateTime();
+        if (ts) tsHtml = `<div class="pcv-timestamp">${t.cv.timestamp || ''}${ts}</div>`;
+    }
+
+    // Contact items — simple block rows, no grid
+    const contactItems = [
+        { label: t.cv.email,          value: info.primaryEmail,   href: `mailto:${info.primaryEmail}` },
+        { label: t.cv.secondaryEmail, value: info.secondaryEmail, href: `mailto:${info.secondaryEmail}` },
+        { label: t.cv.phone,          value: info.phone,          href: `tel:${info.phone.replace(/\s/g, '')}` },
+        { label: t.cv.website,        value: info.website,        href: `https://${info.website.replace(/^https?:\/\//, '')}` },
+        { label: t.cv.location,       value: info.location,       href: null },
+    ].filter(c => c.value);
+
+    const contactHtml = contactItems.map(c => `
+        <div class="pcv-contact-item">
+            <span class="pcv-contact-label">${c.label}</span>
+            ${c.href
+                ? `<a href="${c.href}" class="pcv-contact-value">${c.value}</a>`
+                : `<span class="pcv-contact-value">${c.value}</span>`}
+        </div>`).join('');
+
+    // Photo
+    const photoHtml = showPhoto
+        ? `<img src="${info.profilePhoto}" alt="${info.fullName}" style="width:80pt;height:80pt;object-fit:cover;filter:grayscale(100%);border:0.5pt solid #ccc;float:right;margin-left:12pt;margin-bottom:4pt;">`
+        : '';
+
+    // Strengths — CSS columns, NOT grid
+    const strengthsHtml = cvData.strengths.map(s =>
+        `<div class="pcv-two-col-item">${s}</div>`).join('');
+
+    // Experience
+    const expHtml = cvData.experience.map(exp => `
+        <div class="pcv-exp">
+            <div class="pcv-exp-header">
+                <span class="pcv-exp-title">${exp.title}</span>
+                <span class="pcv-exp-period">${exp.period}</span>
+            </div>
+            ${exp.company ? `<div class="pcv-exp-company">${exp.company}</div>` : ''}
+            <ul class="pcv-exp-bullets">
+                ${exp.description.map(d => `<li>${d}</li>`).join('')}
+            </ul>
+        </div>`).join('');
+
+    // Education — plain block
+    const eduHtml = cvData.education.map(e => `
+        <div class="pcv-edu">
+            <span class="pcv-edu-school">${e.school}</span>
+            <span class="pcv-edu-details">${e.details}</span>
+        </div>`).join('');
+
+    // Tools — CSS columns
+    const toolsHtml = cvData.tools.map(tool =>
+        `<div class="pcv-two-col-item">${tool}</div>`).join('');
+
+    // Languages — CSS columns (safe, no grid)
+    const langsHtml = cvData.languages.map(l =>
+        `<div class="pcv-lang-item"><strong>${l.language}:</strong> ${l.level}</div>`).join('');
+
+    return `
+        <div class="pcv-header">
+            ${photoHtml}
+            <div class="pcv-name">${info.fullName}</div>
+            <div class="pcv-headline">${t.cv.headline}</div>
+            ${tsHtml}
+            <div class="pcv-contact">
+                <div class="pcv-contact-row">${contactHtml}</div>
+            </div>
+        </div>
+
+        <div class="pcv-section">
+            <div class="pcv-section-title">${t.cv.summary}</div>
+            <p class="pcv-summary">${t.cv.summaryText}</p>
+        </div>
+
+        <div class="pcv-section">
+            <div class="pcv-section-title">${t.cv.strengths}</div>
+            <div class="pcv-two-col">${strengthsHtml}</div>
+        </div>
+
+        <div class="pcv-section">
+            <div class="pcv-section-title">${t.cv.experience}</div>
+            ${expHtml}
+        </div>
+
+        <div class="pcv-section">
+            <div class="pcv-section-title">${t.cv.education}</div>
+            ${eduHtml}
+        </div>
+
+        <div class="pcv-section">
+            <div class="pcv-section-title">${t.cv.tools}</div>
+            <div class="pcv-two-col">${toolsHtml}</div>
+        </div>
+
+        <div class="pcv-section">
+            <div class="pcv-section-title">${t.cv.languages}</div>
+            <div class="pcv-lang-row">${langsHtml}</div>
+        </div>
+    `;
+}
+
+// ========================================
+// EXPORT — CV (dedicated print container)
+// Fills #cv-print-container with clean flat HTML,
+// adds body.printing-cv so @media print shows ONLY that container.
+// Removes class via afterprint event.
+// ========================================
+function exportCV() {
+    const container = document.getElementById('cv-print-container');
+    if (!container) { window.print(); return; }
+
+    // Build and inject clean print HTML
+    container.innerHTML = buildPrintCV();
+
+    // Activate print-cv mode
+    document.body.classList.add('printing-cv');
+
+    const cleanup = () => {
+        document.body.classList.remove('printing-cv');
+        window.removeEventListener('afterprint', cleanup);
+    };
+    window.addEventListener('afterprint', cleanup);
+    setTimeout(() => window.print(), 120);
+}
+
+// ========================================
+// CV ACTIONS
+// ========================================
 function toggleCVView() {
     const cvc = document.querySelector('.cv-container');
+    if (!cvc) return;
     cvc.classList.toggle('compact');
     settings.compactCV = cvc.classList.contains('compact');
     saveSettings();
     const toggleText = document.getElementById('cv-view-toggle-text');
     if (toggleText) toggleText.textContent =
-        settings.compactCV ? translations[currentLanguage].cv.fullWidthView : translations[currentLanguage].cv.compactView;
+        settings.compactCV
+            ? translations[currentLanguage].cv.fullWidthView
+            : translations[currentLanguage].cv.compactView;
 }
 
 function copyCVSummary() {
@@ -1324,19 +1471,6 @@ function copyCVSummary() {
     });
 }
 
-// ========================================
-// EXPORT — CV
-// Exports the active CV tab via window.print().
-// Print CSS strips glass, hides chrome, renders clean A4 document.
-// ========================================
-function exportCV() {
-    switchTab('cv');
-    setTimeout(() => window.print(), 80);
-}
-
-// ========================================
-// PITCH DECK RENDERING
-// ========================================
 function renderDeck() {
     const lists = {
         'what-i-bring-list':    deckData.whatIBring,
@@ -1409,9 +1543,9 @@ function exitPresentationMode() {
 }
 
 // ========================================
-// EXPORT — DECK (FULL CONTENT)
-// Adds class 'printing-deck' to body → CSS reveals ALL slides,
-// one per page. Class is removed after print via afterprint event.
+// EXPORT — DECK (ALL SLIDES, ONE PER PAGE)
+// Switches to deck tab, adds body.printing-deck so CSS
+// makes ALL .deck-slide elements display:block with page-break-after.
 // ========================================
 function exportDeck() {
     switchTab('deck');
@@ -1423,7 +1557,7 @@ function exportDeck() {
         window.removeEventListener('afterprint', cleanup);
     };
     window.addEventListener('afterprint', cleanup);
-    setTimeout(() => window.print(), 120);
+    setTimeout(() => window.print(), 150);
 }
 
 // ========================================
@@ -1595,9 +1729,8 @@ function copyCoverLetter() {
 
 // ========================================
 // EXPORT — COVER LETTER (FULL CONTENT)
-// Renders the textarea content into a hidden #cl-print-output div
-// with proper paragraphs, then adds body.printing-cl so CSS
-// shows the div and hides the textarea in @media print.
+// Renders textarea text into #cl-print-output as clean paragraphs.
+// body.printing-cl CSS hides the textarea and shows the div.
 // ========================================
 function exportCoverLetter() {
     const text = document.getElementById('cl-preview').value;
@@ -1608,17 +1741,21 @@ function exportCoverLetter() {
 
     switchTab('cover-letter');
 
-    // Build a clean print-ready version from the textarea
     const printDiv = document.getElementById('cl-print-output');
     if (printDiv) {
+        // Split by newlines, wrap each line in <p>
+        // Blank lines become spacer paragraphs with a specific class
         printDiv.innerHTML = text
             .split('\n')
-            .map(line => `<p>${line || '\u00A0'}</p>`)
+            .map(line => {
+                const safe = line.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+                if (safe.trim() === '') return `<p class="cl-blank"> </p>`;
+                return `<p>${safe}</p>`;
+            })
             .join('');
     }
 
     document.body.classList.add('printing-cl');
-
     const cleanup = () => {
         document.body.classList.remove('printing-cl');
         window.removeEventListener('afterprint', cleanup);

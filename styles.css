@@ -988,184 +988,372 @@ body {
    ======================================== */
 .print-only { display: none; }
 
+/* ========================================
+   CV PRINT CONTAINER
+   Hidden in normal view. Shown exclusively during body.printing-cv.
+   Contains flat block HTML built by buildPrintCV() — no grid, no flex lists.
+   ======================================== */
+.cv-print-container { display: none; }
+
+/* ========================================
+   PRINT — CV EXPORT MODE (body.printing-cv)
+   Hides entire live UI, shows only #cv-print-container
+   ======================================== */
+body.printing-cv * { display: none !important; }
+body.printing-cv #cv-print-container,
+body.printing-cv #cv-print-container * { display: block !important; }
+
+/* Inline elements inside print container */
+body.printing-cv #cv-print-container a,
+body.printing-cv #cv-print-container span,
+body.printing-cv #cv-print-container strong,
+body.printing-cv #cv-print-container em { display: inline !important; }
+
 @media print {
-    /* ── Reset glass and live-UI effects ── */
-    .header {
-        background: #fff !important;
-        backdrop-filter: none !important;
-        -webkit-backdrop-filter: none !important;
-        box-shadow: none !important;
-    }
-    .deck-slides-wrapper,
-    .cover-letter-form,
-    .settings-section {
-        background: transparent !important;
-        backdrop-filter: none !important;
-        -webkit-backdrop-filter: none !important;
-        border: none !important;
-        box-shadow: none !important;
-    }
-    .cv-container {
-        background: transparent !important;
-        border: none !important;
-        box-shadow: none !important;
-        border-radius: 0 !important;
+
+    /* ── A4 page ── */
+    @page {
+        margin: 1.8cm 2cm;
+        size: A4 portrait;
     }
 
-    /* ── Hide interactive chrome ── */
-    .header,
-    .tab-nav,
-    .cv-actions,
-    .deck-actions,
-    .deck-navigation,
-    .cover-letter-actions,
-    .cover-letter-form,
-    .settings-container,
-    .btn,
-    .language-select,
-    .header-actions { display: none !important; }
-
-    /* ── Layout ── */
+    /* ── Base reset ── */
     body {
-        font-size: 11pt;
+        font-size: 10.5pt;
         line-height: 1.6;
         color: #000;
         background: #fff;
         font-family: 'DM Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
     }
 
-    .main-content {
-        padding: 0;
-        max-width: none;
-        width: 100%;
+    /* ── GLOBAL HIDE ── */
+    .header,
+    .tab-nav,
+    .main-content,
+    .cv-print-container { display: none !important; }
+
+    /* ── CV PRINT MODE: show only the print container ── */
+    body.printing-cv .cv-print-container { display: block !important; }
+    body.printing-cv .cv-print-container * { display: block !important; }
+    body.printing-cv .cv-print-container a,
+    body.printing-cv .cv-print-container span,
+    body.printing-cv .cv-print-container strong,
+    body.printing-cv .cv-print-container em { display: inline !important; }
+
+    /* ─── CV PRINT CONTAINER INTERNAL STYLES ─── */
+
+    .pcv-header {
+        border-bottom: 1.5pt solid #000;
+        margin-bottom: 16pt;
+        padding-bottom: 10pt;
     }
-
-    .tab-content { display: none !important; }
-    .tab-content.active { display: block !important; }
-
-    .cv-container,
-    .deck-container,
-    .cover-letter-container {
-        max-width: 100%; width: 100%;
-        padding: 0;
-        margin: 0;
-    }
-
-    /* ── A4 page ── */
-    @page {
-        margin: 2cm 2.2cm;
-        size: A4 portrait;
-    }
-
-    /* ── CV print ── */
-    .ats-mode .cv-header-photo,
-    .ats-mode .cover-photo-wrapper,
-    .ats-mode .contact-photo-wrapper { display: none !important; }
-
-    .premium-mode .cv-header-photo { display: block !important; }
-
-    .cv-header {
-        border-bottom: 1.5pt solid #000 !important;
-        margin-bottom: 20pt; padding-bottom: 12pt;
-        background: none !important;
-    }
-
-    .cv-name {
-        font-size: 22pt !important;
-        font-family: 'Cormorant Garamond', Georgia, serif !important;
-        color: #000 !important;
+    .pcv-name {
+        font-family: 'Cormorant Garamond', Georgia, serif;
+        font-size: 26pt;
+        font-weight: 500;
         letter-spacing: 0.01em;
+        line-height: 1.1;
+        color: #000;
+        margin-bottom: 4pt;
     }
-    .cv-headline { font-size: 11pt !important; color: #444 !important; }
-    .cv-contact { display: flex !important; margin-top: 8pt; padding-top: 8pt; }
-    .contact-link { color: #000 !important; text-decoration: none !important; }
+    .pcv-headline {
+        font-size: 10.5pt;
+        color: #444;
+        font-weight: 300;
+        line-height: 1.4;
+        margin-bottom: 8pt;
+    }
+    .pcv-timestamp {
+        font-size: 8pt;
+        color: #888;
+        font-style: italic;
+        margin-top: 4pt;
+    }
 
-    .cv-section-title {
-        font-size: 8pt !important;
-        letter-spacing: 0.1em;
-        border-bottom-color: #000 !important;
-        margin-top: 16pt;
+    /* Contact row — simple block, no flex/grid */
+    .pcv-contact {
+        margin-top: 8pt;
+        padding-top: 8pt;
+        border-top: 0.5pt solid #ccc;
+    }
+    .pcv-contact-row {
+        display: flex !important;
+        flex-wrap: wrap;
+        gap: 2pt 24pt;
+        margin: 0;
+        padding: 0;
+    }
+    .pcv-contact-item {
+        display: inline-block !important;
+        font-size: 8.5pt;
+        color: #333;
+        margin-bottom: 3pt;
+        min-width: 200pt;
+    }
+    .pcv-contact-label {
+        font-size: 7pt;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: #888;
+        display: block !important;
+        margin-bottom: 1pt;
+    }
+    .pcv-contact-value {
+        font-size: 8.5pt;
+        color: #000;
+        text-decoration: none;
+    }
+
+    /* Section headers */
+    .pcv-section {
+        margin-bottom: 14pt;
+    }
+    .pcv-section-title {
+        font-size: 7.5pt;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.12em;
+        color: #000;
+        border-bottom: 1.5pt solid #000;
+        padding-bottom: 3pt;
+        margin-bottom: 8pt;
+        margin-top: 14pt;
         break-after: avoid;
         page-break-after: avoid;
     }
 
-    .cv-section {
+    /* Summary */
+    .pcv-summary {
+        font-size: 10pt;
+        line-height: 1.7;
+        color: #222;
+        text-align: justify;
+        hyphens: none;
+        orphans: 3;
+        widows: 3;
+    }
+
+    /* Two-column lists — using CSS columns, NOT grid.
+       CSS columns are safe in Chrome PDF, grid is not. */
+    .pcv-two-col {
+        -webkit-column-count: 2;
+        column-count: 2;
+        -webkit-column-gap: 28pt;
+        column-gap: 28pt;
+        break-inside: auto;
+    }
+    .pcv-two-col-item {
+        font-size: 9.5pt;
+        line-height: 1.5;
+        padding: 1.5pt 0;
+        color: #222;
         break-inside: avoid;
         page-break-inside: avoid;
+        display: block !important;
+    }
+    .pcv-two-col-item::before {
+        content: '– ';
+        color: #999;
+    }
+
+    /* Experience */
+    .pcv-exp {
         margin-bottom: 10pt;
+        padding-bottom: 10pt;
+        border-bottom: 0.4pt solid #e0e0e0;
+        break-inside: avoid;
+        page-break-inside: avoid;
+    }
+    .pcv-exp:last-child { border-bottom: none; padding-bottom: 0; }
+    .pcv-exp-header {
+        display: flex !important;
+        justify-content: space-between;
+        align-items: baseline;
+        margin-bottom: 2pt;
+        flex-wrap: wrap;
+    }
+    .pcv-exp-title {
+        font-size: 10pt;
+        font-weight: 600;
+        color: #000;
+        flex: 1;
+    }
+    .pcv-exp-period {
+        font-size: 8.5pt;
+        color: #666;
+        white-space: nowrap;
+        font-weight: 300;
+    }
+    .pcv-exp-company {
+        font-size: 9pt;
+        color: #555;
+        font-style: italic;
+        margin-bottom: 5pt;
+    }
+    .pcv-exp-bullets {
+        margin: 4pt 0 0 0;
+        padding: 0;
+        list-style: none;
+    }
+    .pcv-exp-bullets li {
+        font-size: 9.5pt;
+        line-height: 1.6;
+        color: #222;
+        padding-left: 12pt;
+        position: relative;
+        margin-bottom: 1.5pt;
+        break-inside: avoid;
+    }
+    .pcv-exp-bullets li::before {
+        content: '–';
+        position: absolute;
+        left: 0;
+        color: #aaa;
     }
 
-    .cv-summary-text {
-        font-size: 10pt !important;
-        line-height: 1.65;
-        orphans: 3; widows: 3;
+    /* Education */
+    .pcv-edu {
+        margin-bottom: 8pt;
+        break-inside: avoid;
+    }
+    .pcv-edu-school {
+        font-size: 10pt;
+        font-weight: 600;
+        color: #000;
+        display: block !important;
+    }
+    .pcv-edu-details {
+        font-size: 9pt;
+        color: #555;
+        display: block !important;
+        margin-top: 2pt;
     }
 
-    .experience-item {
-        break-inside: avoid; page-break-inside: avoid;
-        margin-bottom: 8pt; padding-bottom: 8pt;
-        border-bottom: 0.5pt solid #ddd !important;
+    /* Languages — simple block per item (NO grid) */
+    .pcv-lang-row {
+        -webkit-column-count: 2;
+        column-count: 2;
+        -webkit-column-gap: 28pt;
+        column-gap: 28pt;
     }
-    .experience-item:last-child { border-bottom: none !important; }
-    .experience-title { font-size: 10pt !important; }
-    .experience-company { font-size: 9pt !important; }
-    .experience-period { font-size: 9pt !important; }
-    .experience-description li { font-size: 9.5pt !important; break-inside: avoid; }
+    .pcv-lang-item {
+        font-size: 9.5pt;
+        color: #222;
+        padding: 2pt 0;
+        break-inside: avoid;
+        display: block !important;
+    }
 
-    .education-school { font-size: 10pt !important; }
-    .education-details { font-size: 9.5pt !important; }
+    /* ── DECK PRINT MODE (body.printing-deck) ──
+       All slides become visible, one per page.
+    ── */
+    body.printing-deck .header,
+    body.printing-deck .tab-nav,
+    body.printing-deck .cv-print-container,
+    body.printing-deck .deck-actions,
+    body.printing-deck .deck-navigation { display: none !important; }
 
-    .strengths-list, .tools-list, .languages-list { break-inside: avoid; }
-    .strengths-list li, .tools-list li, .languages-list li { font-size: 9.5pt !important; }
-
-    /* ── DECK print: ALL slides visible, one per page ──
-       Controlled by body.printing-deck class added before print
-       ── */
+    body.printing-deck .main-content {
+        display: block !important;
+        padding: 0;
+        max-width: none;
+        width: 100%;
+    }
+    body.printing-deck #deck { display: block !important; }
+    body.printing-deck .deck-container {
+        display: block !important;
+        max-width: 100%;
+        padding: 0;
+        margin: 0;
+    }
+    body.printing-deck .deck-slides-wrapper {
+        display: block !important;
+        background: transparent !important;
+        border: none !important;
+        box-shadow: none !important;
+        backdrop-filter: none !important;
+        -webkit-backdrop-filter: none !important;
+        min-height: auto !important;
+    }
+    body.printing-deck .deck-slides { display: block !important; }
     body.printing-deck .deck-slide {
         display: block !important;
         break-after: page;
         page-break-after: always;
-        min-height: auto;
-        padding: 2cm 2.2cm;
+        min-height: 230mm;
+        padding: 2cm;
         animation: none !important;
     }
     body.printing-deck .deck-slide:last-child {
         break-after: auto;
         page-break-after: auto;
     }
-    body.printing-deck .deck-slide .slide-content { max-width: 100%; }
-    body.printing-deck .slide-name { font-size: 28pt !important; }
-    body.printing-deck .slide-title { font-size: 9pt !important; }
-    body.printing-deck .slide-text, body.printing-deck .slide-list li { font-size: 11pt !important; }
-    body.printing-deck .slide-intro { background: none !important; border: none !important; padding: 0 !important; }
-    body.printing-deck .cover-photo, body.printing-deck .contact-photo { filter: grayscale(100%); }
+    body.printing-deck .deck-slide .slide-content {
+        display: block !important;
+        max-width: 100%;
+    }
+    body.printing-deck .cover-slide {
+        text-align: center;
+    }
+    body.printing-deck .slide-name {
+        font-size: 26pt !important;
+        font-family: 'Cormorant Garamond', Georgia, serif !important;
+    }
+    body.printing-deck .slide-title { font-size: 8.5pt !important; }
+    body.printing-deck .slide-text { font-size: 10.5pt !important; line-height: 1.7; }
+    body.printing-deck .slide-list { list-style: none !important; }
+    body.printing-deck .slide-list li { font-size: 10.5pt !important; display: list-item !important; }
+    body.printing-deck .slide-intro {
+        background: none !important;
+        border: none !important;
+        padding: 0 !important;
+        font-size: 10pt !important;
+    }
 
-    /* ── Cover Letter print ──
-       Shows cl-print-output div, hides textarea
-       Controlled by body.printing-cl class
-       ── */
+    /* ── COVER LETTER PRINT MODE (body.printing-cl) ── */
+    body.printing-cl .header,
+    body.printing-cl .tab-nav,
+    body.printing-cl .cv-print-container,
+    body.printing-cl .cover-letter-form,
+    body.printing-cl .cover-letter-actions { display: none !important; }
+
+    body.printing-cl .main-content {
+        display: block !important;
+        padding: 0;
+        max-width: none;
+    }
+    body.printing-cl #cover-letter { display: block !important; }
+    body.printing-cl .cover-letter-container {
+        display: block !important;
+        max-width: 100%;
+        padding: 0;
+        margin: 0;
+    }
+    body.printing-cl .cover-letter-output { display: block !important; }
+    body.printing-cl .cover-letter-output label { display: none !important; }
     body.printing-cl .cl-textarea { display: none !important; }
     body.printing-cl .cl-print-output {
         display: block !important;
         font-size: 11pt;
-        line-height: 1.85;
+        line-height: 1.9;
         color: #000;
     }
     body.printing-cl .cl-print-output p {
+        display: block !important;
         font-size: 11pt !important;
-        line-height: 1.85 !important;
-        min-height: 1em;
-        orphans: 3; widows: 3;
+        line-height: 1.9 !important;
+        margin-bottom: 0.5em;
+        min-height: 0.8em;
+        orphans: 3;
+        widows: 3;
     }
-    body.printing-cl .cover-letter-output label { display: none; }
+    body.printing-cl .cl-print-output p.cl-blank { min-height: 0.8em; }
 
     /* ── Global print typography ── */
-    p, li {
-        orphans: 3; widows: 3;
-        hyphens: auto; -webkit-hyphens: auto;
-    }
-    a { text-decoration: none; color: #000; }
-    h1, h2, h3, h4, h5, h6 { color: #000 !important; break-after: avoid; }
+    a { text-decoration: none !important; color: #000 !important; }
+    h1, h2, h3, h4, h5, h6 { color: #000 !important; break-after: avoid !important; page-break-after: avoid !important; }
 }
 
 /* ========================================
