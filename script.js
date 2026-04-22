@@ -67,6 +67,7 @@ const translations = {
             cv: 'CV',
             deck: 'Pitch Deck',
             coverLetter: 'Cover Letter',
+            invoices: 'Invoices',
             settings: 'Settings'
         },
         cv: {
@@ -191,7 +192,15 @@ const translations = {
             printOptimized: 'Print Optimized',
             data: 'Data Management',
             resetPreferences: 'Reset All Preferences',
-            resetButton: 'Reset'
+            resetButton: 'Reset',
+            // Notes / How It Works section
+            notesTitle:    'How It Works',
+            noteInfo:      'Personal information updates all sections immediately. Empty fields are hidden automatically — no broken placeholders.',
+            noteATS:       'ATS Mode keeps your CV export clean, structured, and text-first. No photos or decorative elements appear in ATS exports.',
+            notePremium:   'Premium Mode enables your profile photo in the Pitch Deck and CV header (requires a valid photo path and Show Photo enabled).',
+            notePublic:    'The Shareable Public Link opens the app in recruiter-facing view with your selected language pre-applied. The Settings tab is hidden.',
+            notePDF:       'PDF exports use your current language and reflect all active settings. CV export renders as a clean document.',
+            noteStorage:   'Your settings and personal information are saved locally in your browser. Nothing is sent to a server.'
         },
         publicMode: {
             exitPublic: 'Exit Public View'
@@ -214,6 +223,7 @@ const translations = {
             cv: 'Lebenslauf',
             deck: 'Präsentation',
             coverLetter: 'Anschreiben',
+            invoices: 'Rechnungen',
             settings: 'Einstellungen'
         },
         cv: {
@@ -333,7 +343,15 @@ const translations = {
             printOptimized: 'Druckoptimiert',
             data: 'Datenverwaltung',
             resetPreferences: 'Alle Einstellungen zurücksetzen',
-            resetButton: 'Zurücksetzen'
+            resetButton: 'Zurücksetzen',
+            // Hinweise / So funktioniert es
+            notesTitle:    'So funktioniert es',
+            noteInfo:      'Persönliche Informationen werden sofort in allen Bereichen aktualisiert. Leere Felder werden automatisch ausgeblendet.',
+            noteATS:       'Der ATS-Modus hält Ihren Lebenslauf-Export sauber, strukturiert und textbasiert — ohne Fotos oder dekorative Elemente.',
+            notePremium:   'Der Premium-Modus aktiviert Ihr Profilfoto in der Präsentation und im Lebenslauf-Kopf (erfordert gültigen Foto-Pfad und aktiviertes Foto-Anzeigen).',
+            notePublic:    'Der teilbare öffentliche Link öffnet die App in der Recruiter-Ansicht mit vorausgewählter Sprache. Der Einstellungs-Tab ist ausgeblendet.',
+            notePDF:       'PDF-Exporte verwenden Ihre aktuelle Sprache und spiegeln alle aktiven Einstellungen wider.',
+            noteStorage:   'Ihre Einstellungen und persönlichen Informationen werden lokal in Ihrem Browser gespeichert. Es werden keine Daten an einen Server gesendet.'
         },
         publicMode: {
             exitPublic: 'Öffentliche Ansicht beenden'
@@ -356,6 +374,7 @@ const translations = {
             cv: 'Životopis',
             deck: 'Prezentácia',
             coverLetter: 'Motivačný list',
+            invoices: 'Faktúry',
             settings: 'Nastavenia'
         },
         cv: {
@@ -475,7 +494,15 @@ const translations = {
             printOptimized: 'Optimalizované pre tlač',
             data: 'Správa dát',
             resetPreferences: 'Resetovať všetky nastavenia',
-            resetButton: 'Resetovať'
+            resetButton: 'Resetovať',
+            // Poznámky / Ako to funguje
+            notesTitle:    'Ako to funguje',
+            noteInfo:      'Osobné informácie sa okamžite aktualizujú vo všetkých sekciách. Prázdne polia sú automaticky skryté.',
+            noteATS:       'ATS režim uchováva export životopisu čistý, štruktúrovaný a textový — bez fotografií ani dekoratívnych prvkov.',
+            notePremium:   'Premium režim aktivuje profilovú fotku v prezentácii a v hlavičke životopisu (vyžaduje platný odkaz na fotku a zapnuté zobrazenie fotky).',
+            notePublic:    'Zdieľateľný verejný odkaz otvorí aplikáciu v recruiter-friendly zobrazení s vopred nastaveným jazykom. Záložka Nastavenia je skrytá.',
+            notePDF:       'PDF exporty používajú aktuálny jazyk a odrážajú všetky aktívne nastavenia.',
+            noteStorage:   'Vaše nastavenia a osobné informácie sú uložené lokálne vo vašom prehliadači. Žiadne dáta nie sú odosielané na server.'
         },
         publicMode: {
             exitPublic: 'Ukončiť verejný pohľad'
@@ -498,6 +525,7 @@ const translations = {
             cv: 'Currículum',
             deck: 'Presentación',
             coverLetter: 'Carta de presentación',
+            invoices: 'Facturas',
             settings: 'Configuración'
         },
         cv: {
@@ -617,7 +645,15 @@ const translations = {
             printOptimized: 'Optimizado para impresión',
             data: 'Gestión de datos',
             resetPreferences: 'Restablecer todas las preferencias',
-            resetButton: 'Restablecer'
+            resetButton: 'Restablecer',
+            // Notas / Cómo funciona
+            notesTitle:    'Cómo funciona',
+            noteInfo:      'La información personal se actualiza inmediatamente en todas las secciones. Los campos vacíos se ocultan automáticamente.',
+            noteATS:       'El Modo ATS mantiene su CV exportado limpio, estructurado y basado en texto — sin fotos ni elementos decorativos.',
+            notePremium:   'El Modo Premium activa su foto de perfil en la presentación y en el encabezado del CV (requiere ruta de foto válida y Mostrar foto activado).',
+            notePublic:    'El Enlace Público Compartible abre la app en vista orientada al reclutador con el idioma seleccionado pre-aplicado. La pestaña de Configuración está oculta.',
+            notePDF:       'Las exportaciones PDF usan su idioma actual y reflejan todos los ajustes activos.',
+            noteStorage:   'Su configuración e información personal se guardan localmente en su navegador. No se envía nada a un servidor.'
         },
         publicMode: {
             exitPublic: 'Salir de vista pública'
@@ -840,6 +876,7 @@ document.addEventListener('DOMContentLoaded', () => {
     updatePersonalInfoDisplay();
     updateTimestamps();
     checkURLParams();           // PUBLIC MODE: check for ?view=public&lang=xx
+    INV.init();                 // INVOICE MODULE: init after app is ready
 });
 
 // ========================================
@@ -856,9 +893,12 @@ function checkURLParams() {
         isPublicMode = true;
         document.body.classList.add('public-mode');
 
-        // Hide settings tab
+        // Hide settings tab and invoices tab in public/recruiter mode
+        // Invoices is internal-only — must never appear in recruiter-facing view
         const settingsTab = document.getElementById('settings-tab-btn');
         if (settingsTab) settingsTab.style.display = 'none';
+        const invoicesTab = document.getElementById('invoices-tab-btn');
+        if (invoicesTab) invoicesTab.style.display = 'none';
 
         // Activate toggle button appearance
         const toggleBtn = document.getElementById('public-mode-toggle');
@@ -883,8 +923,12 @@ function togglePublicMode() {
     isPublicMode = !isPublicMode;
     document.body.classList.toggle('public-mode', isPublicMode);
 
+    // Hide/show both settings and invoices tabs based on mode
+    // Invoices tab must never be visible in recruiter/public mode
     const settingsTab = document.getElementById('settings-tab-btn');
     if (settingsTab) settingsTab.style.display = isPublicMode ? 'none' : '';
+    const invoicesTab = document.getElementById('invoices-tab-btn');
+    if (invoicesTab) invoicesTab.style.display = isPublicMode ? 'none' : '';
 
     const toggleBtn = document.getElementById('public-mode-toggle');
     if (toggleBtn) {
@@ -939,7 +983,9 @@ function loadPersonalInfo() {
     const saved = localStorage.getItem('careerAppPersonalInfo');
     if (saved) {
         try {
-            personalInfo = { ...defaultPersonalInfo, ...JSON.parse(saved) };
+            // Merge with defaults so new fields always exist, but saved empty strings are preserved
+            const parsed = JSON.parse(saved);
+            personalInfo = { ...defaultPersonalInfo, ...parsed };
         } catch (e) {
             console.warn('Could not load personal info:', e);
             personalInfo = { ...defaultPersonalInfo };
@@ -947,66 +993,167 @@ function loadPersonalInfo() {
     }
 }
 
+// ========================================
+// LIVE PERSONAL INFO SYNC
+// Called by oninput on every settings personal info field.
+// Updates personalInfo in memory immediately and refreshes
+// all display locations — no Save button needed for live preview.
+// localStorage is only written on explicit Save click.
+// ========================================
+function livePersonalInfoUpdate(inputEl) {
+    const fieldMap = {
+        'settings-full-name':       'fullName',
+        'settings-primary-email':   'primaryEmail',
+        'settings-secondary-email': 'secondaryEmail',
+        'settings-phone':           'phone',
+        'settings-website':         'website',
+        'settings-location':        'location',
+        'settings-linkedin':        'linkedin',
+        'settings-profile-photo':   'profilePhoto',
+    };
+    const key = fieldMap[inputEl.id];
+    if (key) {
+        personalInfo[key] = inputEl.value.trim();
+        updatePersonalInfoDisplay();
+    }
+}
+
+// ========================================
+// SAVE PERSONAL INFO
+// Persists current personalInfo to localStorage.
+// Allows empty values — clears do not revert to defaults.
+// ========================================
 function savePersonalInfo() {
-    personalInfo.fullName       = document.getElementById('settings-full-name').value       || defaultPersonalInfo.fullName;
-    personalInfo.primaryEmail   = document.getElementById('settings-primary-email').value   || defaultPersonalInfo.primaryEmail;
-    personalInfo.secondaryEmail = document.getElementById('settings-secondary-email').value || defaultPersonalInfo.secondaryEmail;
-    personalInfo.phone          = document.getElementById('settings-phone').value           || defaultPersonalInfo.phone;
-    personalInfo.website        = document.getElementById('settings-website').value         || defaultPersonalInfo.website;
-    personalInfo.location       = document.getElementById('settings-location').value        || defaultPersonalInfo.location;
-    personalInfo.linkedin       = document.getElementById('settings-linkedin').value        || defaultPersonalInfo.linkedin;
-    personalInfo.profilePhoto   = document.getElementById('settings-profile-photo').value   || defaultPersonalInfo.profilePhoto;
+    // Read current field values — empty string is valid (clears the field)
+    personalInfo.fullName       = (document.getElementById('settings-full-name')?.value       ?? '').trim();
+    personalInfo.primaryEmail   = (document.getElementById('settings-primary-email')?.value   ?? '').trim();
+    personalInfo.secondaryEmail = (document.getElementById('settings-secondary-email')?.value ?? '').trim();
+    personalInfo.phone          = (document.getElementById('settings-phone')?.value           ?? '').trim();
+    personalInfo.website        = (document.getElementById('settings-website')?.value         ?? '').trim();
+    personalInfo.location       = (document.getElementById('settings-location')?.value        ?? '').trim();
+    personalInfo.linkedin       = (document.getElementById('settings-linkedin')?.value        ?? '').trim();
+    personalInfo.profilePhoto   = (document.getElementById('settings-profile-photo')?.value   ?? '').trim();
 
     localStorage.setItem('careerAppPersonalInfo', JSON.stringify(personalInfo));
     updatePersonalInfoDisplay();
 
-    showToast(translations[currentLanguage]?.alerts?.personalSaved || 'Saved.');
+    showToast(translations[currentLanguage]?.alerts?.personalSaved || 'Personal information saved.');
 }
 
+// ========================================
+// PERSONAL INFO DISPLAY
+// Syncs all personalInfo fields across every part of the app.
+// Hides contact rows cleanly when a field is empty.
+// Photo logic: show only when path set + showPhoto + premium mode.
+// ========================================
 function updatePersonalInfoDisplay() {
-    // Header name
-    const headerName = document.getElementById('header-name');
-    if (headerName) headerName.textContent = personalInfo.fullName;
+    const info = personalInfo;
 
-    // CV header
-    const cvName = document.getElementById('cv-name');
-    if (cvName) cvName.textContent = personalInfo.fullName;
+    // ── Header & CV name ──────────────────────────────────────────
+    const name = info.fullName || '';
+    setElText('header-name',    name);
+    setElText('cv-name',        name);
+    setElText('contact-name-deck', name);
+    setElText('deck-cover-name',   name);
 
-    // Contact items
-    setEl('contact-email-primary', { text: personalInfo.primaryEmail, href: `mailto:${personalInfo.primaryEmail}` });
-    setEl('contact-email-secondary', { text: personalInfo.secondaryEmail, href: `mailto:${personalInfo.secondaryEmail}` });
-    setEl('contact-phone', { text: personalInfo.phone, href: `tel:${personalInfo.phone.replace(/\s/g, '')}` });
-    setEl('contact-website', { text: personalInfo.website, href: `https://${personalInfo.website.replace(/^https?:\/\//, '')}` });
-    setElText('contact-location', personalInfo.location);
+    // ── CV Contact rows — show/hide wrapper based on value ────────
+    syncContactRow('ci-primary-email',   'contact-email-primary',
+        info.primaryEmail,
+        info.primaryEmail ? `mailto:${info.primaryEmail}` : null);
 
-    // Deck contact slide
-    setElText('contact-name-deck', personalInfo.fullName);
-    setEl('deck-contact-email',    { text: personalInfo.primaryEmail, href: `mailto:${personalInfo.primaryEmail}` });
-    setEl('deck-contact-phone',    { text: personalInfo.phone,        href: `tel:${personalInfo.phone.replace(/\s/g, '')}` });
-    setEl('deck-contact-website',  { text: personalInfo.website,      href: `https://${personalInfo.website.replace(/^https?:\/\//, '')}` });
-    setElText('deck-contact-location', personalInfo.location);
-    setElText('deck-cover-name', personalInfo.fullName);
+    syncContactRow('ci-secondary-email', 'contact-email-secondary',
+        info.secondaryEmail,
+        info.secondaryEmail ? `mailto:${info.secondaryEmail}` : null);
 
-    // Profile photos
+    syncContactRow('ci-phone',   'contact-phone',
+        info.phone,
+        info.phone ? `tel:${info.phone.replace(/\s/g, '')}` : null);
+
+    syncContactRow('ci-website', 'contact-website',
+        info.website,
+        info.website ? `https://${info.website.replace(/^https?:\/\//, '')}` : null);
+
+    // Location (span, not a link)
+    const locWrap = document.getElementById('ci-location');
+    const locEl   = document.getElementById('contact-location');
+    if (locEl)   locEl.textContent = info.location || '';
+    if (locWrap) locWrap.style.display = info.location ? '' : 'none';
+
+    // ── Deck contact slide rows ────────────────────────────────────
+    syncDeckRow('dci-name-wrap', null, name, null);   // name always shown if set
+
+    syncContactRow('dci-email-wrap', 'deck-contact-email',
+        info.primaryEmail,
+        info.primaryEmail ? `mailto:${info.primaryEmail}` : null);
+
+    syncContactRow('dci-phone-wrap', 'deck-contact-phone',
+        info.phone,
+        info.phone ? `tel:${info.phone.replace(/\s/g, '')}` : null);
+
+    syncContactRow('dci-website-wrap', 'deck-contact-website',
+        info.website,
+        info.website ? `https://${info.website.replace(/^https?:\/\//, '')}` : null);
+
+    const dLocWrap = document.getElementById('dci-location-wrap');
+    const dLocEl   = document.getElementById('deck-contact-location');
+    if (dLocEl)   dLocEl.textContent = info.location || '';
+    if (dLocWrap) dLocWrap.style.display = info.location ? '' : 'none';
+
+    // ── Profile photos ────────────────────────────────────────────
+    // Show only when: path is non-empty AND showPhoto is true AND premium mode
+    const photoPath  = (info.profilePhoto || '').trim();
+    const shouldShow = photoPath && settings.showPhoto && settings.profileMode === 'premium';
+
     const photoIds = ['cv-profile-photo', 'cover-profile-photo', 'contact-profile-photo'];
-    const shouldShow = settings.showPhoto && settings.profileMode === 'premium';
     photoIds.forEach(id => {
         const img = document.getElementById(id);
-        if (img) {
-            img.src = personalInfo.profilePhoto;
-            img.style.display = shouldShow ? 'block' : 'none';
+        if (!img) return;
+        if (shouldShow) {
+            img.src = photoPath;
+            img.style.display = 'block';
+            // If image load fails, hide cleanly
+            img.onerror = function() {
+                this.style.display = 'none';
+                if (this.parentElement) this.parentElement.style.display = 'none';
+            };
+            if (img.parentElement) img.parentElement.style.display = '';
+        } else {
+            img.style.display = 'none';
+            if (img.parentElement) img.parentElement.style.display = 'none';
         }
     });
 
-    // Settings form
-    setValue('settings-full-name',       personalInfo.fullName);
-    setValue('settings-primary-email',   personalInfo.primaryEmail);
-    setValue('settings-secondary-email', personalInfo.secondaryEmail);
-    setValue('settings-phone',           personalInfo.phone);
-    setValue('settings-website',         personalInfo.website);
-    setValue('settings-location',        personalInfo.location);
-    setValue('settings-linkedin',        personalInfo.linkedin);
-    setValue('settings-profile-photo',   personalInfo.profilePhoto);
+    // ── Settings form ─────────────────────────────────────────────
+    setValue('settings-full-name',       info.fullName       || '');
+    setValue('settings-primary-email',   info.primaryEmail   || '');
+    setValue('settings-secondary-email', info.secondaryEmail || '');
+    setValue('settings-phone',           info.phone          || '');
+    setValue('settings-website',         info.website        || '');
+    setValue('settings-location',        info.location       || '');
+    setValue('settings-linkedin',        info.linkedin       || '');
+    setValue('settings-profile-photo',   info.profilePhoto   || '');
+}
+
+/**
+ * Syncs one contact row: updates the link element text+href,
+ * then shows/hides the wrapper div based on whether value is set.
+ */
+function syncContactRow(wrapperId, linkId, value, href) {
+    const wrapper = document.getElementById(wrapperId);
+    const link    = linkId ? document.getElementById(linkId) : null;
+
+    if (link) {
+        link.textContent = value || '';
+        if (href) link.href = href;
+    }
+    if (wrapper) wrapper.style.display = value ? '' : 'none';
+}
+
+/**
+ * Syncs a deck contact row (paragraph wrappers).
+ */
+function syncDeckRow(wrapperId, linkId, value, href) {
+    syncContactRow(wrapperId, linkId, value, href);
 }
 
 // ========================================
@@ -1148,6 +1295,12 @@ function switchTab(tabId) {
         sec.classList.toggle('active', sec.id === tabId);
     });
     if (isPresentationMode) exitPresentationMode();
+
+    // When switching to invoices tab, pre-fill supplier info from personalInfo
+    // (only fills fields that are currently empty — respects manual edits)
+    if (tabId === 'invoices' && typeof INV !== 'undefined') {
+        INV.prefillFromPersonalInfo();
+    }
 }
 
 // ========================================
@@ -1209,6 +1362,9 @@ function updateLanguage(lang) {
     // Sync cover letter language selector
     const clLang = document.getElementById('cl-language');
     if (clLang) clLang.value = lang;
+
+    // Sync invoice language — invoice only supports sk/en, mapped automatically
+    if (typeof INV !== 'undefined') INV.syncLangWithApp(lang);
 
     updateTimestamps();
 }
@@ -1328,15 +1484,16 @@ function buildPrintCV() {
     }
 
     // Contact items — simple block rows, no grid
-    const contactItems = [
-        { label: t.cv.email,          value: info.primaryEmail,   href: `mailto:${info.primaryEmail}` },
-        { label: t.cv.secondaryEmail, value: info.secondaryEmail, href: `mailto:${info.secondaryEmail}` },
-        { label: t.cv.phone,          value: info.phone,          href: `tel:${info.phone.replace(/\s/g, '')}` },
-        { label: t.cv.website,        value: info.website,        href: `https://${info.website.replace(/^https?:\/\//, '')}` },
-        { label: t.cv.location,       value: info.location,       href: null },
-    ].filter(c => c.value);
+    // Only include items with non-empty values
+    const rawContacts = [
+        { label: t.cv.email,          value: info.primaryEmail   || '', href: info.primaryEmail   ? `mailto:${info.primaryEmail}` : null },
+        { label: t.cv.secondaryEmail, value: info.secondaryEmail || '', href: info.secondaryEmail ? `mailto:${info.secondaryEmail}` : null },
+        { label: t.cv.phone,          value: info.phone          || '', href: info.phone          ? `tel:${(info.phone).replace(/\s/g, '')}` : null },
+        { label: t.cv.website,        value: info.website        || '', href: info.website        ? `https://${info.website.replace(/^https?:\/\//, '')}` : null },
+        { label: t.cv.location,       value: info.location       || '', href: null },
+    ].filter(c => c.value.trim() !== '');
 
-    const contactHtml = contactItems.map(c => `
+    const contactHtml = rawContacts.map(c => `
         <div class="pcv-contact-item">
             <span class="pcv-contact-label">${c.label}</span>
             ${c.href
@@ -1344,9 +1501,10 @@ function buildPrintCV() {
                 : `<span class="pcv-contact-value">${c.value}</span>`}
         </div>`).join('');
 
-    // Photo
-    const photoHtml = showPhoto
-        ? `<img src="${info.profilePhoto}" alt="${info.fullName}" style="width:80pt;height:80pt;object-fit:cover;filter:grayscale(100%);border:0.5pt solid #ccc;float:right;margin-left:12pt;margin-bottom:4pt;">`
+    // Photo — only include if path non-empty AND showPhoto AND premium mode
+    const photoPath = (info.profilePhoto || '').trim();
+    const photoHtml = (showPhoto && photoPath)
+        ? `<img src="${photoPath}" alt="${info.fullName || ''}" style="width:80pt;height:80pt;object-fit:cover;filter:grayscale(100%);border:0.5pt solid #ccc;float:right;margin-left:12pt;margin-bottom:4pt;" onerror="this.style.display='none';">`
         : '';
 
     // Strengths — CSS columns, NOT grid
@@ -1861,3 +2019,527 @@ function setChecked(id, val) {
     const el = document.getElementById(id);
     if (el) el.checked = val;
 }
+
+// ========================================
+// INVOICE MODULE — INV
+// ========================================
+// Preserved from wl2026_copy.html:
+//   - All form fields and default values
+//   - readForm() / applyView() / applyToPreview() live preview logic
+//   - generateClientLink() — encodes full invoice into URL params
+//   - copyAndOpenEmail() — mailto with invoice link
+//   - fillFromQuery() — populates form from URL params (client link)
+//   - bindLiveUpdates() — real-time preview on input change
+//   - QR image URL + file upload + clear logic
+//   - I18N object (SK + EN) and applyLang()
+//   - Client mode detection (URL ?mode=client)
+//
+// Adapted for unified app:
+//   - Wrapped in INV IIFE to avoid global naming conflicts
+//   - currentLang renamed to invLang (app uses currentLanguage)
+//   - $ helper renamed to $i to avoid conflict with any future $ usage
+//   - btnPrint now uses printing-invoice class (like other export modes)
+//   - Language syncs with app: if app = SK → invoice defaults SK, else EN
+//   - Supplier name/email pre-filled from app personalInfo on tab open
+//   - checkInvoiceClientMode() integrated with app tab switching
+//   - generateClientLink() URL still works: app detects ?mode=client
+//
+// Public mode: invoice tab hidden via .public-mode #invoices-tab-btn CSS rule
+//              AND togglePublicMode() / checkURLParams() in main app JS
+// ========================================
+const INV = (() => {
+    'use strict';
+
+    // Scoped $ helper — does not conflict with any global variable
+    const $i = (id) => document.getElementById(id);
+    const setText = (id, txt) => { const el = $i(id); if (el) el.textContent = (txt ?? '').toString(); };
+    const setHtml = (id, html) => { const el = $i(id); if (el) el.innerHTML = html; };
+
+    // ── State ──────────────────────────────────────────────────────
+    let invLang = 'sk';           // invoice language (sk|en only)
+    let lastClientLink = '';       // stored for copy button (Shorten A UX)
+    let qrUploadedDataUrl = '';    // uploaded QR as data URL
+
+    // ── QR upload ─────────────────────────────────────────────────
+    function readQrUploadToDataUrl(file) {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = () => resolve(String(reader.result || ''));
+            reader.onerror = reject;
+            reader.readAsDataURL(file);
+        });
+    }
+
+    // ── Helpers ───────────────────────────────────────────────────
+    function buildServiceTitle(projectName) {
+        return (projectName || '').trim();
+    }
+
+    function hydrateNote(template, projectName) {
+        return (template || '').toString().replaceAll('{{PROJECT_NAME}}', projectName || '—');
+    }
+
+    function setBrand(data) {
+        const name = (data.brandName || '').trim();
+        const tagline = (data.brandTagline || '').trim();
+        setText('vBrandName', name || 'INVOICE');
+        setText('vBrandTagline', tagline || '');
+
+        const logoUrl = (data.brandLogo || '').trim();
+        const box = $i('brandLogoBox');
+        const img = $i('brandLogoImg');
+        if (logoUrl) {
+            if (box) box.classList.add('visible');
+            if (img) img.src = logoUrl;
+        } else {
+            if (box) box.classList.remove('visible');
+            if (img) img.removeAttribute('src');
+        }
+    }
+
+    function setQR(url, enabled, qrDataUrl) {
+        const wrap = $i('qrWrap');
+        const img  = $i('qrImg');
+        if (!enabled) { if (wrap) wrap.style.display = 'none'; return; }
+        const dataUrl  = (qrDataUrl || '').trim();
+        const linkUrl  = (url || '').trim();
+        const finalSrc = dataUrl || linkUrl;
+        if (!finalSrc) { if (wrap) wrap.style.display = 'none'; return; }
+        if (wrap) wrap.style.display = 'block';
+        if (img) img.src = finalSrc;
+    }
+
+    function updateBuyerLabels() {
+        const type  = ($i('buyerType')?.value || 'company');
+        const isInd = type === 'individual';
+        setText('t_lbl_buyer_display', isInd
+            ? (invLang === 'en' ? 'Full name' : 'Meno a priezvisko')
+            : (invLang === 'en' ? 'Company name' : 'Názov firmy'));
+        setText('t_lbl_buyer_tax', isInd
+            ? (invLang === 'en' ? 'ID / Tax (optional)' : 'Rodné/IČO/DIČ (voliteľné)')
+            : (invLang === 'en' ? 'Company ID / Tax' : 'IČO / DIČ'));
+    }
+
+    // ── Form reader ───────────────────────────────────────────────
+    function readForm() {
+        const g = (id) => $i(id)?.value?.trim() || '';
+        const projectName = g('projectName') || '';
+        return {
+            brandName: g('brandName'), brandTagline: g('brandTagline'), brandLogo: g('brandLogo'),
+            defaultLang: g('defaultLang') || 'sk',
+            themePage: g('themePage'), themeHeader: g('themeHeader'),
+            themeAccent: g('themeAccent'), themeBtn: g('themeBtn'),
+            inv: g('inv'), issue: g('issue'), serviceDate: g('serviceDate'),
+            due: g('due'), projectName,
+            amount: g('amount'), currency: g('currency') || 'EUR',
+            notesTemplate: g('notes'),
+            notes: hydrateNote(g('notes'), projectName),
+            serviceTitle: buildServiceTitle(projectName),
+            supplierName: g('supplierName'), supplierEmail: g('supplierEmail'),
+            supplierAddress: g('supplierAddress'), supplierTax: g('supplierTax'),
+            supplierVatNote: g('supplierVatNote'),
+            buyerType: g('buyerType'), buyerDisplay: g('buyerDisplay'),
+            buyerAddress: g('buyerAddress'), buyerTax: g('buyerTax'), buyerVat: g('buyerVat'),
+            contactName: g('contactName'), contactEmail: g('contactEmail'),
+            bankName: g('bankName'), iban: g('iban'), bic: g('bic'),
+            qr: g('qr'),
+            qrEnabled: $i('qrEnabled') ? $i('qrEnabled').checked : true,
+            qrDataUrl: qrUploadedDataUrl
+        };
+    }
+
+    // ── Apply data to preview ─────────────────────────────────────
+    function applyView(data) {
+        setBrand(data);
+        setText('vInv', data.inv);
+        setText('vIssue', data.issue);
+        setText('vServiceDate', data.serviceDate);
+        setText('vDue', data.due);
+        setText('vServiceTitle', data.serviceTitle || '');
+        setText('vAmount', data.amount); setText('vAmount2', data.amount);
+        setText('vCur', data.currency); setText('vCur2', data.currency);
+        setText('vNotes', data.notes);
+        setText('vSupplierEmailTop', data.supplierEmail || '');
+        setText('vBankNameTop', data.bankName || '');
+        setText('vSupplierName', data.supplierName || '');
+        setText('vSupplierEmail', data.supplierEmail || '');
+        setText('vSupplierAddress', data.supplierAddress || '');
+        setText('vSupplierTax', data.supplierTax || '');
+        setText('vSupplierVatNote', data.supplierVatNote || '');
+        setText('vBuyerDisplay', data.buyerDisplay || '');
+        setText('vBuyerAddress', data.buyerAddress || '');
+        setText('vBuyerTax', data.buyerTax || '');
+        setText('vBuyerVat', data.buyerVat ? data.buyerVat : '—');
+        const contact = [data.contactName, data.contactEmail].filter(Boolean).join(' · ');
+        setText('vContact', contact || '—');
+        setText('vBankName', data.bankName || '');
+        setText('vIban', data.iban || '');
+        setText('vBic', data.bic || '');
+        setText('vRef', data.inv || '');
+        setQR(data.qr, data.qrEnabled, data.qrDataUrl);
+    }
+
+    function applyToPreview() { applyView(readForm()); }
+
+    // ── Fill form from URL query params (client link) ─────────────
+    function fillFromQuery() {
+        const p = new URLSearchParams(location.search);
+        const map = {
+            brandName:'brandName', brandTagline:'brandTagline', brandLogo:'brandLogo',
+            themePage:'themePage', themeHeader:'themeHeader', themeAccent:'themeAccent', themeBtn:'themeBtn',
+            inv:'inv', issue:'issue', serviceDate:'serviceDate', due:'due',
+            projectName:'projectName', amount:'amount', currency:'currency', notes:'notes',
+            supplierName:'supplierName', supplierEmail:'supplierEmail',
+            supplierAddress:'supplierAddress', supplierTax:'supplierTax', supplierVatNote:'supplierVatNote',
+            buyerType:'buyerType', buyerDisplay:'buyerDisplay',
+            buyerAddress:'buyerAddress', buyerTax:'buyerTax', buyerVat:'buyerVat',
+            contactName:'contactName', contactEmail:'contactEmail',
+            bankName:'bankName', iban:'iban', bic:'bic', qr:'qr'
+        };
+        Object.entries(map).forEach(([k, id]) => {
+            const v = p.get(k);
+            if (v !== null && $i(id)) $i(id).value = v;
+        });
+        const qrEnabled = p.get('qrEnabled');
+        if (qrEnabled !== null && $i('qrEnabled')) {
+            $i('qrEnabled').checked = (qrEnabled === '1' || qrEnabled === 'true');
+        }
+        const qd = p.get('qrDataUrl');
+        if (qd) qrUploadedDataUrl = qd;
+    }
+
+    // ── Client mode detection ─────────────────────────────────────
+    // When URL has ?mode=client, hide admin panel and show client toolbar.
+    // Integrates with app tab switching to land on invoices tab.
+    function checkInvoiceClientMode() {
+        const p = new URLSearchParams(location.search);
+        const isClient = p.get('mode') === 'client';
+        const admin   = $i('adminPanel');
+        const toolbar = $i('clientToolbar');
+        const bar     = $i('inv-header-actions');
+
+        if (isClient) {
+            // Switch app to invoices tab (app function)
+            if (typeof switchTab === 'function') switchTab('invoices');
+            if (admin)   admin.style.display   = 'none';
+            if (toolbar) toolbar.style.display = 'block';
+            if (bar)     bar.style.display     = 'none';
+        } else {
+            if (toolbar) toolbar.style.display = 'none';
+        }
+    }
+
+    // ── I18N — Preserved from original file ───────────────────────
+    const I18N = {
+        sk: {
+            badge:'Faktúry · Admin',
+            clientToolbarTitle:'Klient — stiahnuť PDF',
+            clientToolbarHint:'Otvorte faktúru a kliknite <b>Stiahnuť PDF</b>. V okne tlače vyberte <b>Uložiť ako PDF</b>.',
+            btnDownload:'Stiahnuť PDF', btnPrint:'Tlačiť',
+            adminTitle:'Admin — úprava faktúry',
+            brandPill:'Branding', themePill:'Theme (farby)',
+            supplierPill:'Dodávateľ', buyerPill:'Odberateľ',
+            contactPill:'Kontaktná osoba', bankPill:'Banka',
+            previewTitle:'Náhľad (takto to vidí klient)', invoiceTitle:'Faktúra',
+            metaInv:'Faktúra č.:', metaIssue:'Dátum vystavenia:',
+            metaService:'Dátum dodania:', metaDue:'Splatnosť:',
+            supplierHdr:'Dodávateľ', buyerHdr:'Odberateľ',
+            kName:'Meno', kAddress:'Adresa', kTax:'IČO / DIČ', kVat:'DPH',
+            kBuyer:'Firma / Meno', kBuyerAddr:'Adresa',
+            kBuyerTax:'IČO / DIČ', kBuyerVat:'IČ DPH', kContact:'Kontakt',
+            serviceHdr:'Služba', ref:'Referencia:',
+            amountLbl:'Suma', totalLbl:'Spolu', bankLbl:'Banka',
+            qrHint:'Scan na platbu.', qrNote:'Scan na platbu',
+            qrEnabled:'Zobraziť QR na faktúre',
+            qrUpload:'Upload QR (PNG/JPG)',
+            qrUploadHint:'Upload má prednosť. Pre URL znovu klikni "Vymazať upload".',
+            clearUpload:'Vymazať upload',
+            btnUpdate:'Aktualizovať náhľad', btnGen:'Vygenerovať link',
+            btnEmail:'Kopírovať + e-mail', btnSave:'Tlač / Uložiť PDF',
+            lblBuyerType:'Typ odberateľa', lblBuyerDisplay:'Názov firmy / Meno',
+            lblBuyerAddress:'Adresa', lblBuyerTax:'IČO / DIČ',
+            lblBuyerVat:'IČ DPH (voliteľné)',
+            lblContactName:'Meno kontaktnej osoby', lblContactEmail:'E-mail kontaktnej osoby',
+            clientLinkLbl:'Link pre klienta (len na čítanie):',
+            clientLinkHint:'Pošli klientovi link. Klient klikne <b>Stiahnuť PDF</b> → <b>Uložiť ako PDF</b>.',
+            copyLink:'Kopírovať link'
+        },
+        en: {
+            badge:'Invoices · Admin',
+            clientToolbarTitle:'Client — PDF download',
+            clientToolbarHint:'Open the invoice and click <b>Download PDF</b>. In the print dialog choose <b>Save as PDF</b>.',
+            btnDownload:'Download PDF', btnPrint:'Print',
+            adminTitle:'Admin — edit invoice',
+            brandPill:'Branding', themePill:'Theme (colors)',
+            supplierPill:'Supplier', buyerPill:'Client',
+            contactPill:'Contact person', bankPill:'Bank',
+            previewTitle:'Preview (client sees this)', invoiceTitle:'Invoice',
+            metaInv:'Invoice No.:', metaIssue:'Issue date:',
+            metaService:'Service date:', metaDue:'Due:',
+            supplierHdr:'Supplier', buyerHdr:'Client',
+            kName:'Name', kAddress:'Address', kTax:'ID / Tax', kVat:'VAT',
+            kBuyer:'Company / Name', kBuyerAddr:'Address',
+            kBuyerTax:'ID / Tax', kBuyerVat:'VAT', kContact:'Contact',
+            serviceHdr:'Service', ref:'Reference:',
+            amountLbl:'Amount', totalLbl:'Total', bankLbl:'Bank',
+            qrHint:'Scan to pay.', qrNote:'Scan to pay',
+            qrEnabled:'Show QR on invoice',
+            qrUpload:'Upload QR (PNG/JPG)',
+            qrUploadHint:'Upload has priority over the link. To use URL again, click "Clear upload".',
+            clearUpload:'Clear upload',
+            btnUpdate:'Update preview', btnGen:'Generate client link',
+            btnEmail:'Copy + Email client', btnSave:'Print / Save PDF',
+            lblBuyerType:'Buyer type', lblBuyerDisplay:'Company / Full name',
+            lblBuyerAddress:'Address', lblBuyerTax:'ID / Tax',
+            lblBuyerVat:'VAT (optional)',
+            lblContactName:'Contact name', lblContactEmail:'Contact email',
+            clientLinkLbl:'Client link (read-only):',
+            clientLinkHint:'Send the client the link. Client clicks <b>Download PDF</b> → <b>Save as PDF</b>.',
+            copyLink:'Copy client link'
+        }
+    };
+
+    // ── Apply language ────────────────────────────────────────────
+    function applyLang(lang) {
+        invLang = (lang === 'en') ? 'en' : 'sk';
+        localStorage.setItem('wl_invoice_lang', invLang);
+        const t = I18N[invLang];
+
+        setText('t_badge', t.badge);
+        setText('t_client_toolbar_title', t.clientToolbarTitle);
+        setHtml('t_client_toolbar_hint', t.clientToolbarHint);
+        const dlBtn = $i('btnClientDownload'); if (dlBtn) dlBtn.textContent = t.btnDownload;
+        const prBtn = $i('btnClientPrint');   if (prBtn) prBtn.textContent = t.btnPrint;
+        setText('t_admin_title', t.adminTitle);
+        setText('t_brand_pill', t.brandPill); setText('t_theme_pill', t.themePill);
+        setText('t_supplier_pill', t.supplierPill); setText('t_buyer_pill', t.buyerPill);
+        setText('t_contact_pill', t.contactPill); setText('t_bank_pill', t.bankPill);
+        setText('t_preview_title', t.previewTitle); setText('t_invoice_title', t.invoiceTitle);
+        setText('t_meta_inv', t.metaInv); setText('t_meta_issue', t.metaIssue);
+        setText('t_meta_service', t.metaService); setText('t_meta_due', t.metaDue);
+        setText('t_supplier_hdr', t.supplierHdr); setText('t_buyer_hdr', t.buyerHdr);
+        setText('t_k_name', t.kName); setText('t_k_address', t.kAddress);
+        setText('t_k_tax', t.kTax); setText('t_k_vat', t.kVat);
+        setText('t_k_buyer', t.kBuyer); setText('t_k_buyer_addr', t.kBuyerAddr);
+        setText('t_k_buyer_tax', t.kBuyerTax); setText('t_k_buyer_vat', t.kBuyerVat);
+        setText('t_k_contact', t.kContact);
+        setText('t_service_hdr', t.serviceHdr); setText('t_ref', t.ref);
+        setText('t_amount_lbl', t.amountLbl); setText('t_total_lbl', t.totalLbl);
+        setText('t_bank_lbl', t.bankLbl);
+        setText('t_qr_hint', t.qrHint); setText('t_qr_note', t.qrNote);
+        setText('t_qr_enabled', t.qrEnabled);
+        setText('t_lbl_qr_upload', t.qrUpload);
+        setText('t_qr_upload_hint', t.qrUploadHint);
+        const clearBtn = $i('btnClearQrUpload'); if (clearBtn) clearBtn.textContent = t.clearUpload;
+        setText('t_lbl_buyer_type', t.lblBuyerType);
+        setText('t_lbl_buyer_display', t.lblBuyerDisplay);
+        setText('t_lbl_buyer_address', t.lblBuyerAddress);
+        setText('t_lbl_buyer_tax', t.lblBuyerTax);
+        setText('t_lbl_buyer_vat', t.lblBuyerVat);
+        setText('t_lbl_contact_name', t.lblContactName);
+        setText('t_lbl_contact_email', t.lblContactEmail);
+        setText('t_client_link_lbl', t.clientLinkLbl);
+        setHtml('t_client_link_hint', t.clientLinkHint);
+        const copyBtn = $i('btnCopyClientLink'); if (copyBtn) copyBtn.textContent = t.copyLink;
+        const updBtn  = $i('btnUpdate');  if (updBtn) updBtn.textContent = t.btnUpdate;
+        const genBtn  = $i('btnGenLink'); if (genBtn) genBtn.textContent = t.btnGen;
+        const emlBtn  = $i('btnEmail');   if (emlBtn) emlBtn.textContent = t.btnEmail;
+        const prtBtn  = $i('btnPrint');   if (prtBtn) prtBtn.textContent = t.btnSave;
+        // Update invLangToggle label
+        const toggle = $i('invLangToggle');
+        if (toggle) toggle.textContent = invLang === 'en' ? 'SK' : 'EN';
+
+        updateBuyerLabels();
+    }
+
+    function getInitialLang() {
+        const p = new URLSearchParams(location.search);
+        const q = (p.get('lang') || '').toLowerCase();
+        if (q === 'en' || q === 'sk') return q;
+        const saved = (localStorage.getItem('wl_invoice_lang') || '').toLowerCase();
+        if (saved === 'en' || saved === 'sk') return saved;
+        const dl = ($i('defaultLang')?.value || '').toLowerCase();
+        if (dl === 'en' || dl === 'sk') return dl;
+        return 'sk';
+    }
+
+    // ── Generate client link ──────────────────────────────────────
+    // Preserved from original — encodes full invoice data into URL params.
+    // The generated URL points to this same unified app page with ?mode=client.
+    // When opened, the app detects ?mode=client, switches to invoices tab,
+    // hides the admin panel, and shows the client toolbar.
+    function generateClientLink() {
+        const data = readForm();
+        const p = new URLSearchParams();
+        p.set('mode', 'client');
+        p.set('lang', invLang);
+
+        const passthrough = [
+            'brandName','brandTagline','brandLogo',
+            'inv','issue','serviceDate','due','projectName','amount','currency',
+            'supplierName','supplierEmail','supplierAddress','supplierTax','supplierVatNote',
+            'buyerType','buyerDisplay','buyerAddress','buyerTax','buyerVat',
+            'contactName','contactEmail',
+            'bankName','iban','bic'
+        ];
+        passthrough.forEach(k => p.set(k, data[k] || ''));
+        p.set('notes', $i('notes')?.value || '');
+        p.set('qrEnabled', data.qrEnabled ? '1' : '0');
+        if (data.qrDataUrl) { p.set('qrDataUrl', data.qrDataUrl); }
+        else if (data.qr)   { p.set('qr', data.qr); }
+
+        const url = location.origin + location.pathname + '?' + p.toString();
+        lastClientLink = url;
+        const box = $i('clientLink');
+        if (box) box.textContent = url;
+
+        const status = $i('clientLinkStatus');
+        try {
+            navigator.clipboard?.writeText(url);
+            if (status) status.textContent = invLang === 'sk' ? 'Link skopírovaný ✓' : 'Link copied ✓';
+        } catch (e) {
+            if (status) status.textContent = invLang === 'sk' ? 'Link pripravený ✓' : 'Link ready ✓';
+        }
+        return url;
+    }
+
+    // ── Copy + email client ───────────────────────────────────────
+    function copyAndOpenEmail() {
+        const url = generateClientLink();
+        const subject = encodeURIComponent((invLang === 'en' ? 'Invoice ' : 'Faktúra ') + ($i('inv')?.value || ''));
+        const body = invLang === 'en'
+            ? `Hello,\n\nHere is your invoice link (read-only):\n${url}\n\nHow to download PDF:\n1) Open the link\n2) Click "Download PDF"\n3) Choose "Save as PDF"`
+            : `Dobrý deň,\n\ntu je link na faktúru (len na zobrazenie):\n${url}\n\nAko stiahnuť PDF:\n1) Otvorte link\n2) Kliknite "Stiahnuť PDF"\n3) Vyberte "Uložiť ako PDF"`;
+        window.location.href = `mailto:?subject=${subject}&body=${encodeURIComponent(body)}`;
+    }
+
+    // ── Invoice print / PDF ───────────────────────────────────────
+    // Adapted: adds body.printing-invoice class (like other export modes)
+    // so @media print CSS shows only the invoice preview cleanly.
+    function invPrint() {
+        document.body.classList.add('printing-invoice');
+        const cleanup = () => {
+            document.body.classList.remove('printing-invoice');
+            window.removeEventListener('afterprint', cleanup);
+        };
+        window.addEventListener('afterprint', cleanup);
+        setTimeout(() => window.print(), 100);
+    }
+
+    // ── Live update bindings ──────────────────────────────────────
+    function bindLiveUpdates() {
+        const ids = [
+            'brandName','brandTagline','brandLogo','defaultLang',
+            'inv','currency','issue','serviceDate','due','projectName','amount','notes',
+            'supplierName','supplierEmail','supplierAddress','supplierTax','supplierVatNote',
+            'buyerType','buyerDisplay','buyerAddress','buyerTax','buyerVat',
+            'contactName','contactEmail',
+            'bankName','iban','bic','qr'
+        ];
+        ids.forEach(id => {
+            const el = $i(id);
+            if (!el) return;
+            el.addEventListener('input', applyToPreview);
+            el.addEventListener('change', applyToPreview);
+        });
+
+        const chk = $i('qrEnabled');
+        if (chk) chk.addEventListener('change', applyToPreview);
+
+        const up = $i('qrUpload');
+        if (up) {
+            up.addEventListener('change', async (e) => {
+                const file = e.target.files && e.target.files[0];
+                if (!file) return;
+                qrUploadedDataUrl = await readQrUploadToDataUrl(file);
+                applyToPreview();
+            });
+        }
+
+        const clearBtn = $i('btnClearQrUpload');
+        if (clearBtn) {
+            clearBtn.addEventListener('click', () => {
+                qrUploadedDataUrl = '';
+                const upEl = $i('qrUpload');
+                if (upEl) upEl.value = '';
+                applyToPreview();
+            });
+        }
+
+        const buyerType = $i('buyerType');
+        if (buyerType) {
+            buyerType.addEventListener('change', () => {
+                updateBuyerLabels();
+                applyToPreview();
+            });
+        }
+
+        const copyBtn = $i('btnCopyClientLink');
+        if (copyBtn) {
+            copyBtn.addEventListener('click', async () => {
+                if (!lastClientLink) { generateClientLink(); return; }
+                const status = $i('clientLinkStatus');
+                try {
+                    await navigator.clipboard.writeText(lastClientLink);
+                    if (status) status.textContent = invLang === 'sk' ? 'Link skopírovaný ✓' : 'Link copied ✓';
+                } catch (e) {
+                    if (status) status.textContent = 'Clipboard error';
+                    alert(lastClientLink);
+                }
+            });
+        }
+    }
+
+    // ── Personal info pre-fill ────────────────────────────────────
+    // Called when switching to the invoices tab.
+    // Pre-fills supplier name and email from app personalInfo
+    // ONLY if the invoice fields are still at their initial empty/default state.
+    function prefillFromPersonalInfo() {
+        if (typeof personalInfo === 'undefined') return;
+        const info = personalInfo;
+        const prefill = (id, val) => {
+            const el = $i(id);
+            // Only apply if field is blank (respects manually entered values)
+            if (el && val && el.value.trim() === '') {
+                el.value = val;
+                applyToPreview();
+            }
+        };
+        prefill('supplierName', info.fullName);
+        prefill('supplierEmail', info.primaryEmail || info.secondaryEmail);
+    }
+
+    // ── Language sync with app ────────────────────────────────────
+    // Called by updateLanguage() in main app JS.
+    // Maps app language to invoice language (invoice only supports sk/en).
+    function syncLangWithApp(appLang) {
+        const mapped = (appLang === 'sk') ? 'sk' : 'en';
+        if (mapped !== invLang) applyLang(mapped);
+    }
+
+    // ── Init ──────────────────────────────────────────────────────
+    function init() {
+        const initialLang = getInitialLang();
+        applyLang(initialLang);
+
+        $i('invLangToggle')?.addEventListener('click', () => {
+            applyLang(invLang === 'en' ? 'sk' : 'en');
+        });
+
+        checkInvoiceClientMode();
+        fillFromQuery();
+        bindLiveUpdates();
+        applyToPreview();
+
+        const on = (id, fn) => { const el = $i(id); if (el) el.addEventListener('click', fn); };
+        on('btnUpdate', applyToPreview);
+        on('btnGenLink', generateClientLink);
+        on('btnEmail', copyAndOpenEmail);
+        on('btnPrint', invPrint);
+        on('btnClientDownload', invPrint);
+        on('btnClientPrint', invPrint);
+    }
+
+    // Expose public interface
+    return { init, prefillFromPersonalInfo, syncLangWithApp };
+})();

@@ -52,6 +52,10 @@
             <button class="tab-btn" data-tab="cover-letter">
                 <span data-i18n="tabs.coverLetter">Cover Letter</span>
             </button>
+            <!-- INVOICE TAB — hidden in public/recruiter mode (see public-mode CSS + togglePublicMode()) -->
+            <button class="tab-btn" data-tab="invoices" id="invoices-tab-btn">
+                <span data-i18n="tabs.invoices">Invoices</span>
+            </button>
             <button class="tab-btn" data-tab="settings" id="settings-tab-btn">
                 <span data-i18n="tabs.settings">Settings</span>
             </button>
@@ -73,7 +77,7 @@
                 <div class="cv-header">
                     <!-- Profile photo — shown only in Premium Profile Mode -->
                     <div class="cv-header-photo" id="cv-header-photo">
-                        <img src="images/profile.jpg" alt="Andrej Kneisl" id="cv-profile-photo" style="display:none;">
+                        <img src="images/profile.jpg" alt="Andrej Kneisl" id="cv-profile-photo" style="display:none;" onerror="this.style.display='none';this.parentElement.style.display='none';">
                     </div>
 
                     <div class="cv-header-main">
@@ -85,23 +89,23 @@
 
                     <!-- Contact block -->
                     <div class="cv-contact" id="cv-contact">
-                        <div class="contact-item">
+                        <div class="contact-item" id="ci-primary-email">
                             <span class="contact-label" data-i18n="cv.email">Email</span>
                             <a href="mailto:Kneisl.andrej@icloud.com" class="contact-link" id="contact-email-primary">Kneisl.andrej@icloud.com</a>
                         </div>
-                        <div class="contact-item">
+                        <div class="contact-item" id="ci-secondary-email">
                             <span class="contact-label" data-i18n="cv.secondaryEmail">Secondary Email</span>
                             <a href="mailto:info@andykgroupinternational.com" class="contact-link" id="contact-email-secondary">info@andykgroupinternational.com</a>
                         </div>
-                        <div class="contact-item">
+                        <div class="contact-item" id="ci-phone">
                             <span class="contact-label" data-i18n="cv.phone">Phone</span>
                             <a href="tel:+443300271319" class="contact-link" id="contact-phone">+44 330 027 1319</a>
                         </div>
-                        <div class="contact-item">
+                        <div class="contact-item" id="ci-website">
                             <span class="contact-label" data-i18n="cv.website">Website</span>
                             <a href="https://www.andykgroupinternational.com" target="_blank" class="contact-link" id="contact-website">www.andykgroupinternational.com</a>
                         </div>
-                        <div class="contact-item">
+                        <div class="contact-item" id="ci-location">
                             <span class="contact-label" data-i18n="cv.location">Location</span>
                             <span class="contact-value" id="contact-location">Asunción, Paraguay</span>
                         </div>
@@ -185,7 +189,7 @@
                         <div class="deck-slide active" data-slide="0">
                             <div class="slide-content cover-slide">
                                 <div class="cover-photo-wrapper" id="cover-photo-wrapper">
-                                    <img src="images/profile.jpg" alt="Andrej Kneisl" class="cover-photo" id="cover-profile-photo" style="display:none;">
+                                    <img src="images/profile.jpg" alt="Andrej Kneisl" class="cover-photo" id="cover-profile-photo" style="display:none;" onerror="this.style.display='none';this.parentElement.style.display='none';">
                                 </div>
                                 <h2 class="slide-name" id="deck-cover-name">Andrej Kneisl</h2>
                                 <p class="slide-headline" data-i18n="deck.headline">Business Development Analyst | GTM Support | Commercial Operations</p>
@@ -247,16 +251,16 @@
                         <div class="deck-slide" data-slide="7">
                             <div class="slide-content contact-slide">
                                 <div class="contact-photo-wrapper" id="contact-photo-wrapper">
-                                    <img src="images/profile.jpg" alt="Andrej Kneisl" class="contact-photo" id="contact-profile-photo" style="display:none;">
+                                    <img src="images/profile.jpg" alt="Andrej Kneisl" class="contact-photo" id="contact-profile-photo" style="display:none;" onerror="this.style.display='none';this.parentElement.style.display='none';">
                                 </div>
                                 <h3 class="slide-title" data-i18n="deck.contactTitle">Contact</h3>
                                 <div class="slide-contact">
-                                    <p><strong id="contact-name-deck">Andrej Kneisl</strong></p>
+                                    <p id="dci-name-wrap"><strong id="contact-name-deck">Andrej Kneisl</strong></p>
                                     <p data-i18n="deck.headline">Business Development Analyst | GTM Support | Commercial Operations</p>
-                                    <p class="contact-detail"><a href="mailto:Kneisl.andrej@icloud.com" class="contact-link-inline" id="deck-contact-email">Kneisl.andrej@icloud.com</a></p>
-                                    <p class="contact-detail"><a href="tel:+443300271319" class="contact-link-inline" id="deck-contact-phone">+44 330 027 1319</a></p>
-                                    <p class="contact-detail"><a href="https://www.andykgroupinternational.com" target="_blank" class="contact-link-inline" id="deck-contact-website">www.andykgroupinternational.com</a></p>
-                                    <p class="contact-detail" id="deck-contact-location">Asunción, Paraguay</p>
+                                    <p class="contact-detail" id="dci-email-wrap"><a href="mailto:Kneisl.andrej@icloud.com" class="contact-link-inline" id="deck-contact-email">Kneisl.andrej@icloud.com</a></p>
+                                    <p class="contact-detail" id="dci-phone-wrap"><a href="tel:+443300271319" class="contact-link-inline" id="deck-contact-phone">+44 330 027 1319</a></p>
+                                    <p class="contact-detail" id="dci-website-wrap"><a href="https://www.andykgroupinternational.com" target="_blank" class="contact-link-inline" id="deck-contact-website">www.andykgroupinternational.com</a></p>
+                                    <p class="contact-detail" id="dci-location-wrap"><span id="deck-contact-location">Asunción, Paraguay</span></p>
                                 </div>
                             </div>
                         </div>
@@ -372,35 +376,35 @@
 
                     <div class="setting-item setting-item-vertical">
                         <label for="settings-full-name" data-i18n="settings.labelFullName">Full Name</label>
-                        <input type="text" id="settings-full-name" placeholder="Andrej Kneisl" class="settings-input-full">
+                        <input type="text" id="settings-full-name" oninput="livePersonalInfoUpdate(this)" placeholder="Andrej Kneisl" class="settings-input-full">
                     </div>
                     <div class="setting-item setting-item-vertical">
                         <label for="settings-primary-email" data-i18n="settings.labelPrimaryEmail">Primary Email</label>
-                        <input type="email" id="settings-primary-email" placeholder="Kneisl.andrej@icloud.com" class="settings-input-full">
+                        <input type="email" id="settings-primary-email" oninput="livePersonalInfoUpdate(this)" placeholder="Kneisl.andrej@icloud.com" class="settings-input-full">
                     </div>
                     <div class="setting-item setting-item-vertical">
                         <label for="settings-secondary-email" data-i18n="settings.labelSecondaryEmail">Secondary Email</label>
-                        <input type="email" id="settings-secondary-email" placeholder="info@andykgroupinternational.com" class="settings-input-full">
+                        <input type="email" id="settings-secondary-email" oninput="livePersonalInfoUpdate(this)" placeholder="info@andykgroupinternational.com" class="settings-input-full">
                     </div>
                     <div class="setting-item setting-item-vertical">
                         <label for="settings-phone" data-i18n="settings.labelPhone">Phone</label>
-                        <input type="tel" id="settings-phone" placeholder="+44 330 027 1319" class="settings-input-full">
+                        <input type="tel" id="settings-phone" oninput="livePersonalInfoUpdate(this)" placeholder="+44 330 027 1319" class="settings-input-full">
                     </div>
                     <div class="setting-item setting-item-vertical">
                         <label for="settings-website" data-i18n="settings.labelWebsite">Website</label>
-                        <input type="url" id="settings-website" placeholder="www.andykgroupinternational.com" class="settings-input-full">
+                        <input type="url" id="settings-website" oninput="livePersonalInfoUpdate(this)" placeholder="www.andykgroupinternational.com" class="settings-input-full">
                     </div>
                     <div class="setting-item setting-item-vertical">
                         <label for="settings-location" data-i18n="settings.labelLocation">Location</label>
-                        <input type="text" id="settings-location" placeholder="Asunción, Paraguay" class="settings-input-full">
+                        <input type="text" id="settings-location" oninput="livePersonalInfoUpdate(this)" placeholder="Asunción, Paraguay" class="settings-input-full">
                     </div>
                     <div class="setting-item setting-item-vertical">
                         <label for="settings-linkedin" data-i18n="settings.labelLinkedIn">LinkedIn</label>
-                        <input type="text" id="settings-linkedin" placeholder="linkedin.com/in/yourprofile" class="settings-input-full">
+                        <input type="text" id="settings-linkedin" oninput="livePersonalInfoUpdate(this)" placeholder="linkedin.com/in/yourprofile" class="settings-input-full">
                     </div>
                     <div class="setting-item setting-item-vertical">
                         <label for="settings-profile-photo" data-i18n="settings.labelPhoto">Profile Photo Path</label>
-                        <input type="text" id="settings-profile-photo" placeholder="images/profile.jpg" class="settings-input-full">
+                        <input type="text" id="settings-profile-photo" oninput="livePersonalInfoUpdate(this)" placeholder="images/profile.jpg" class="settings-input-full">
                         <small class="setting-hint" data-i18n="settings.photoHint">Recommended: 400×400px JPG, professional headshot</small>
                     </div>
                     <div class="setting-item">
@@ -544,6 +548,20 @@
                     </div>
                 </div>
 
+
+                <!-- Notes / How It Works -->
+                <div class="settings-section settings-notes">
+                    <h3 class="settings-section-title" data-i18n="settings.notesTitle">How It Works</h3>
+                    <ul class="notes-list">
+                        <li data-i18n="settings.noteInfo">Personal information updates all sections of the app immediately. Fields left empty are hidden automatically — no broken placeholders.</li>
+                        <li data-i18n="settings.noteATS">ATS Mode keeps your CV export clean, structured, and text-first. No photos or decorative elements appear in ATS exports.</li>
+                        <li data-i18n="settings.notePremium">Premium Mode enables your profile photo in the Pitch Deck and on the CV header (when a valid photo path is set and Show Photo is on).</li>
+                        <li data-i18n="settings.notePublic">The Shareable Public Link opens the app in recruiter-facing view with your selected language pre-applied. The Settings tab is hidden.</li>
+                        <li data-i18n="settings.notePDF">PDF exports use your current language and reflect all active settings. The CV export is rendered as a clean print document.</li>
+                        <li data-i18n="settings.noteStorage">Settings and personal information are saved locally in your browser. Nothing is sent to a server.</li>
+                    </ul>
+                </div>
+
                 <!-- Data Management -->
                 <div class="settings-section">
                     <h3 class="settings-section-title" data-i18n="settings.data">Data Management</h3>
@@ -557,6 +575,282 @@
 
             </div>
         </section>
+
+
+        <!-- ========================================
+             TAB 4: INVOICES
+             Integrated from wl2026_copy.html
+             Preserved: all form logic, live preview, client link,
+                        QR support, SK/EN language, print/PDF
+             Adapted:   CSS scoped to #inv-root, buttons use app classes,
+                        glass card style, hidden in public/recruiter mode
+             JS:        see INV module in script.js
+             Public mode: invoices-tab-btn hidden via .public-mode CSS rule
+             ======================================== -->
+        <section id="invoices" class="tab-content">
+            <div id="inv-root">
+
+                <!-- Invoice header bar — admin mode only, hidden in client view -->
+                <div class="inv-header-bar" id="inv-header-actions">
+                    <span class="inv-badge" id="t_badge">Invoices · Admin</span>
+                    <div style="display:flex;align-items:center;gap:var(--s-sm);">
+                        <button type="button" class="btn btn-ghost inv-lang-btn" id="invLangToggle" title="Switch invoice language EN / SK">EN / SK</button>
+                        <button type="button" class="btn btn-primary" id="btnPrint">Print / PDF</button>
+                    </div>
+                </div>
+
+                <!-- Client toolbar — shown ONLY when URL has ?mode=client -->
+                <div class="inv-card inv-client-toolbar" id="clientToolbar" style="display:none;">
+                    <div class="inv-card-hd"><h3 id="t_client_toolbar_title">Client — PDF download</h3></div>
+                    <div class="inv-card-bd">
+                        <p class="inv-small" id="t_client_toolbar_hint">Open the invoice and click <b>Download PDF</b>. In the print dialog choose <b>Save as PDF</b>.</p>
+                        <div class="inv-actions" style="margin-top:var(--s-md);">
+                            <button type="button" class="btn btn-primary" id="btnClientDownload">Download PDF</button>
+                            <button type="button" class="btn btn-secondary" id="btnClientPrint">Print</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Two-column layout: Admin form (left) + Live preview (right) -->
+                <div class="inv-two-col">
+
+                    <!-- ── ADMIN PANEL ─────────────────────────────────────────────
+                         Preserved from wl2026_copy.html — all fields intact
+                         ── -->
+                    <div class="inv-card" id="adminPanel">
+                        <div class="inv-card-hd"><h3 id="t_admin_title">Admin — edit invoice</h3></div>
+                        <div class="inv-card-bd">
+
+                            <div class="inv-section-pill" id="t_brand_pill">Branding</div>
+                            <div class="inv-row">
+                                <div><label id="t_lbl_brand_name">Brand name (header)</label><input id="brandName" value="ANDREJ KNEISL"></div>
+                                <div><label id="t_lbl_brand_tagline">Tagline</label><input id="brandTagline" value="Strategic Business Partner | Business Development | International Markets"></div>
+                            </div>
+                            <div class="inv-row">
+                                <div><label id="t_lbl_brand_logo">Logo URL (optional)</label><input id="brandLogo" placeholder="https://.../logo.png"></div>
+                                <div><label id="t_lbl_lang_default">Default language</label>
+                                    <select id="defaultLang"><option value="sk">SK</option><option value="en">EN</option></select>
+                                </div>
+                            </div>
+
+                            <hr class="inv-divider">
+
+                            <div class="inv-section-pill" id="t_theme_pill">Theme colors</div>
+                            <div class="inv-row">
+                                <div><label>Background color</label><input id="themePage" value="#d9d3d3"></div>
+                                <div><label>Header background</label><input id="themeHeader" value="#cdc6c6"></div>
+                            </div>
+                            <div class="inv-row">
+                                <div><label>Header text color</label><input id="themeAccent" value="#ffffff"></div>
+                                <div><label>Button color</label><input id="themeBtn" value="#141414"></div>
+                            </div>
+
+                            <hr class="inv-divider">
+
+                            <div class="inv-row">
+                                <div><label id="t_lbl_inv">Invoice No.</label><input id="inv" value="2026-01-Konica"></div>
+                                <div><label id="t_lbl_currency">Currency</label>
+                                    <select id="currency"><option>EUR</option><option>USD</option><option>GBP</option></select>
+                                </div>
+                            </div>
+                            <div class="inv-row">
+                                <div><label id="t_lbl_issue">Issue date</label><input id="issue" value="2026-02-09"></div>
+                                <div><label id="t_lbl_service">Service date</label><input id="serviceDate" value="2026-01-30"></div>
+                            </div>
+                            <div class="inv-row">
+                                <div><label id="t_lbl_due">Due</label><input id="due" value="15 dní od doručenia faktúry"></div>
+                                <div><label id="t_lbl_project">Project / Service</label><input id="projectName" value="Konica Minolta"></div>
+                            </div>
+                            <div class="inv-row">
+                                <div><label id="t_lbl_amount">Amount</label><input id="amount" value="150"></div>
+                                <div>
+                                    <label id="t_lbl_qr">Bank QR image URL</label>
+                                    <input id="qr" placeholder="QR image URL (optional)">
+                                    <div class="inv-small" style="margin-top:6px;">
+                                        <label style="display:flex;gap:8px;align-items:center;">
+                                            <input type="checkbox" id="qrEnabled" checked style="width:auto;accent-color:var(--color-black);">
+                                            <span id="t_qr_enabled">Show QR on invoice</span>
+                                        </label>
+                                    </div>
+                                    <div style="margin-top:10px;">
+                                        <label id="t_lbl_qr_upload">Upload QR (PNG/JPG)</label>
+                                        <input id="qrUpload" type="file" accept="image/png,image/jpeg,image/webp">
+                                        <div class="inv-small" style="margin-top:5px;" id="t_qr_upload_hint">Upload has priority. To use URL again, clear the upload.</div>
+                                        <div class="inv-actions" style="margin-top:8px;">
+                                            <button type="button" class="btn btn-secondary" id="btnClearQrUpload">Clear upload</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div>
+                                <label id="t_lbl_note">Note / Terms (template)</label>
+                                <textarea id="notes">Nárok na odmenu vznikol na základe dokončeného obchodného cyklu, vrátane kompletne vyplneného CRM, follow-upov a mesačného reportu pre projekt {{PROJECT_NAME}}.</textarea>
+                                <div class="inv-small" style="margin-top:5px;" id="t_note_tip">Tip: use <span class="inv-mono">{{PROJECT_NAME}}</span> as placeholder.</div>
+                            </div>
+
+                            <hr class="inv-divider">
+
+                            <div class="inv-section-pill" id="t_supplier_pill">Supplier</div>
+                            <div class="inv-row">
+                                <div><label id="t_lbl_supplier_name">Supplier — Name</label><input id="supplierName" value="Andrej Kneisl"></div>
+                                <div><label id="t_lbl_supplier_email">Supplier — Email</label><input id="supplierEmail" value="Kneisl.Andrej@icloud.com"></div>
+                            </div>
+                            <div class="inv-row">
+                                <div><label id="t_lbl_supplier_address">Supplier — Address</label><input id="supplierAddress" value="Plankova 17/1, 962 61 Babina, Slovensko"></div>
+                                <div><label id="t_lbl_supplier_tax">Supplier — ID / Tax</label><input id="supplierTax" value="IČO: 42196353, DIČ: 1082122481"></div>
+                            </div>
+                            <div><label id="t_lbl_supplier_vatnote">Supplier — VAT note</label><input id="supplierVatNote" value="Nie som platca DPH"></div>
+
+                            <hr class="inv-divider">
+
+                            <div class="inv-section-pill" id="t_buyer_pill">Client</div>
+                            <div class="inv-row">
+                                <div><label id="t_lbl_buyer_type">Buyer type</label>
+                                    <select id="buyerType"><option value="company">Company / Firma</option><option value="individual">Individual / Fyzická osoba</option></select>
+                                </div>
+                                <div><label id="t_lbl_buyer_display">Company / Full name</label><input id="buyerDisplay" value="Deal machine s. r. o."></div>
+                            </div>
+                            <div class="inv-row">
+                                <div><label id="t_lbl_buyer_address">Buyer address</label><input id="buyerAddress" value="Hlboká cesta 1418/42, 010 01 Žilina"></div>
+                                <div><label id="t_lbl_buyer_tax">Company ID / Tax</label><input id="buyerTax" value="IČO: 55209971, DIČ: 2121899901"></div>
+                            </div>
+                            <div><label id="t_lbl_buyer_vat">VAT (optional)</label><input id="buyerVat" value="SK2121899901"></div>
+
+                            <div class="inv-section-pill" style="margin-top:14px;" id="t_contact_pill">Contact person</div>
+                            <div class="inv-row">
+                                <div><label id="t_lbl_contact_name">Contact name</label><input id="contactName" placeholder="Optional"></div>
+                                <div><label id="t_lbl_contact_email">Contact email</label><input id="contactEmail" placeholder="Optional"></div>
+                            </div>
+
+                            <hr class="inv-divider">
+
+                            <div class="inv-section-pill" id="t_bank_pill">Bank</div>
+                            <div class="inv-row">
+                                <div><label id="t_lbl_bank_name">Bank — Name</label><input id="bankName" value="N26 Business Bank"></div>
+                                <div><label>BIC</label><input id="bic" value="NTSBDEB1XXX"></div>
+                            </div>
+                            <div><label>IBAN</label><input id="iban" value="DE91100110012852212948"></div>
+
+                            <div class="inv-actions">
+                                <button type="button" class="btn btn-primary" id="btnUpdate">Update preview</button>
+                                <button type="button" class="btn btn-secondary" id="btnGenLink">Generate client link</button>
+                                <button type="button" class="btn btn-secondary" id="btnEmail">Copy + Email client</button>
+                            </div>
+
+                            <!-- Client link area (Shorten A: hidden link, visible copy button + status) -->
+                            <div class="inv-small" style="margin-top:var(--s-md);" id="t_client_link_lbl">Client link (read-only):</div>
+                            <div class="inv-actions" style="margin-top:6px;">
+                                <button type="button" class="btn btn-secondary" id="btnCopyClientLink">Copy client link</button>
+                            </div>
+                            <div class="inv-link-status" id="clientLinkStatus">—</div>
+                            <!-- full link stored here, hidden from view -->
+                            <div id="clientLink" style="display:none;">—</div>
+
+                            <div class="inv-small" style="margin-top:10px;" id="t_client_link_hint">
+                                Send the client the link. Client clicks <b>Download PDF</b> → <b>Save as PDF</b>.
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ── INVOICE PREVIEW ─────────────────────────────────────────
+                         Preserved from wl2026_copy.html — structure unchanged
+                         Brand header moved inside preview area for unified app
+                         ── -->
+                    <div class="inv-card" id="invoiceCard">
+                        <div class="inv-card-hd"><h3 id="t_preview_title">Preview (client sees this)</h3></div>
+                        <div class="inv-invoice-preview" id="invoiceView">
+
+                            <!-- Brand header (inside preview) -->
+                            <div class="inv-brand-row">
+                                <div class="inv-brand-logo" id="brandLogoBox"><img id="brandLogoImg" alt="Logo"></div>
+                                <div>
+                                    <div class="inv-brand-name" id="vBrandName">ANDREJ KNEISL</div>
+                                    <div class="inv-brand-tagline" id="vBrandTagline">Strategic Business Partner | Business Development | International Markets</div>
+                                </div>
+                            </div>
+
+                            <!-- Invoice top: title + meta -->
+                            <div class="inv-top">
+                                <div>
+                                    <div class="inv-title" id="t_invoice_title">Invoice</div>
+                                    <div class="inv-sub-small"><span id="vSupplierEmailTop">—</span> · <span id="vBankNameTop">—</span></div>
+                                </div>
+                                <div class="inv-meta">
+                                    <div><span id="t_meta_inv">Invoice No.:</span> <b id="vInv">—</b></div>
+                                    <div><span id="t_meta_issue">Issue date:</span> <b id="vIssue">—</b></div>
+                                    <div><span id="t_meta_service">Service date:</span> <b id="vServiceDate">—</b></div>
+                                    <div><span id="t_meta_due">Due:</span> <b id="vDue">—</b></div>
+                                </div>
+                            </div>
+
+                            <!-- Supplier + Buyer columns -->
+                            <div class="inv-cols">
+                                <div class="inv-inner-card">
+                                    <div class="inv-inner-card-hd"><h3 id="t_supplier_hdr">Supplier</h3></div>
+                                    <div class="inv-inner-card-bd">
+                                        <div class="kv">
+                                            <div class="k" id="t_k_name">Name</div><div class="v" id="vSupplierName">—</div>
+                                            <div class="k" id="t_k_address">Address</div><div class="v" id="vSupplierAddress">—</div>
+                                            <div class="k" id="t_k_tax">ID / Tax</div><div class="v" id="vSupplierTax">—</div>
+                                            <div class="k">Email</div><div class="v" id="vSupplierEmail">—</div>
+                                            <div class="k" id="t_k_vat">VAT</div><div class="v" id="vSupplierVatNote">—</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="inv-inner-card">
+                                    <div class="inv-inner-card-hd"><h3 id="t_buyer_hdr">Client</h3></div>
+                                    <div class="inv-inner-card-bd">
+                                        <div class="kv">
+                                            <div class="k" id="t_k_buyer">Company / Name</div><div class="v" id="vBuyerDisplay">—</div>
+                                            <div class="k" id="t_k_buyer_addr">Address</div><div class="v" id="vBuyerAddress">—</div>
+                                            <div class="k" id="t_k_buyer_tax">ID / Tax</div><div class="v" id="vBuyerTax">—</div>
+                                            <div class="k" id="t_k_buyer_vat">VAT</div><div class="v" id="vBuyerVat">—</div>
+                                            <div class="k" id="t_k_contact">Contact</div><div class="v" id="vContact">—</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Service card -->
+                            <div class="inv-service-card">
+                                <div class="inv-inner-card-hd"><h3 id="t_service_hdr">Service</h3></div>
+                                <div class="inv-inner-card-bd">
+                                    <div class="inv-service-title" id="vServiceTitle">—</div>
+                                    <div class="inv-ref"><span id="t_ref">Reference:</span> <span class="inv-mono" id="vRef">—</span></div>
+                                </div>
+                            </div>
+
+                            <!-- Total -->
+                            <div class="inv-sum">
+                                <div class="inv-sum-box">
+                                    <div class="inv-sum-line"><span id="t_amount_lbl">Amount</span><strong><span id="vAmount">—</span> <span id="vCur">—</span></strong></div>
+                                    <div class="inv-sum-line" style="margin-top:5px;"><span id="t_total_lbl">Total</span><strong><span id="vAmount2">—</span> <span id="vCur2">—</span></strong></div>
+                                </div>
+                            </div>
+
+                            <!-- Notes / Terms -->
+                            <div class="inv-notes" id="vNotes">—</div>
+
+                            <!-- Bank + QR -->
+                            <div class="inv-bank-row">
+                                <div class="inv-bank-left">
+                                    <div><strong><span id="t_bank_lbl">Bank</span>:</strong> <span id="vBankName">—</span></div>
+                                    <div><strong>IBAN:</strong> <span id="vIban">—</span></div>
+                                    <div><strong>BIC:</strong> <span id="vBic">—</span></div>
+                                    <div class="inv-small" id="t_qr_hint" style="margin-top:6px;">Scan to pay.</div>
+                                </div>
+                                <div id="qrWrap">
+                                    <div class="inv-qr-box"><img id="qrImg" alt="QR code"></div>
+                                    <div class="inv-qr-note" id="t_qr_note">Scan to pay</div>
+                                </div>
+                            </div>
+
+                        </div><!-- /inv-invoice-preview -->
+                    </div><!-- /invoiceCard -->
+
+                </div><!-- /inv-two-col -->
+            </div><!-- /inv-root -->
+        </section><!-- /invoices -->
 
     </main>
 
