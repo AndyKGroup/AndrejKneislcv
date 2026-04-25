@@ -737,17 +737,18 @@
                                 <button type="button" class="btn btn-secondary" id="btnEmail">Copy + Email client</button>
                             </div>
 
-                            <!-- Client link area (Shorten A: hidden link, visible copy button + status) -->
-                            <div class="inv-small" style="margin-top:var(--s-md);" id="t_client_link_lbl">Client link (read-only):</div>
-                            <div class="inv-actions" style="margin-top:6px;">
-                                <button type="button" class="btn btn-secondary" id="btnCopyClientLink">Copy client link</button>
-                            </div>
-                            <div class="inv-link-status" id="clientLinkStatus">—</div>
-                            <!-- full link stored here, hidden from view -->
-                            <div id="clientLink" style="display:none;">—</div>
-
-                            <div class="inv-small" style="margin-top:10px;" id="t_client_link_hint">
-                                Send the client the link. Client clicks <b>Download PDF</b> → <b>Save as PDF</b>.
+                            <!-- Client link area — visually separated from action buttons -->
+                            <div class="inv-link-section">
+                                <div class="inv-small" id="t_client_link_lbl">Client link (read-only):</div>
+                                <div class="inv-actions">
+                                    <button type="button" class="btn btn-secondary" id="btnCopyClientLink">Copy client link</button>
+                                </div>
+                                <div class="inv-link-status" id="clientLinkStatus">—</div>
+                                <!-- full link stored here, hidden from view -->
+                                <div id="clientLink" style="display:none;">—</div>
+                                <div class="inv-small" style="margin-top:8px;" id="t_client_link_hint">
+                                    Send the client the link. Client clicks <b>Download PDF</b> → <b>Save as PDF</b>.
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -861,6 +862,16 @@
         No grid, no flex lists — pure block layout to avoid Chrome PDF bugs.
     -->
     <div id="cv-print-container" class="cv-print-container"></div>
+
+    <!--
+        INVOICE PRINT CONTAINER
+        Hidden in live UI. invPrint() fills this with clean, flat HTML
+        and body.printing-invoice shows only this div during print.
+        No grid — uses flex rows with fixed-width key columns.
+        Fixes the Chrome "display:grid + break-inside:avoid" duplication
+        bug that previously caused supplier/client values to render 3× in PDFs.
+    -->
+    <div id="inv-print-container" class="inv-print-container"></div>
 
     <script src="script.js"></script>
 </body>

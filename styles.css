@@ -1356,117 +1356,279 @@ body.printing-cv #cv-print-container em { display: inline !important; }
     h1, h2, h3, h4, h5, h6 { color: #000 !important; break-after: avoid !important; page-break-after: avoid !important; }
 
     /* ── INVOICE PRINT MODE (body.printing-invoice) ──
-       Shows only the invoice preview; hides admin panel, header, nav.
-       Invoice's internal layout stays intact.
+       Identical isolation approach to body.printing-cv:
+       hides everything, shows ONLY #inv-print-container.
+       buildInvoicePrint() in script.js renders clean flat HTML
+       with ipv-* classes into that container before print.
+       No grid used — flex rows only — eliminates Chrome duplication bug.
     ── */
-    body.printing-invoice .header,
-    body.printing-invoice .tab-nav,
-    body.printing-invoice .cv-print-container { display: none !important; }
+    body.printing-invoice * { display: none !important; }
+    body.printing-invoice #inv-print-container,
+    body.printing-invoice #inv-print-container * { display: block !important; }
+    /* Inline elements inside print container */
+    body.printing-invoice #inv-print-container a,
+    body.printing-invoice #inv-print-container span,
+    body.printing-invoice #inv-print-container strong,
+    body.printing-invoice #inv-print-container b,
+    body.printing-invoice #inv-print-container em { display: inline !important; }
+    /* Flex rows need flex */
+    body.printing-invoice .ipv-header,
+    body.printing-invoice .ipv-top,
+    body.printing-invoice .ipv-parties,
+    body.printing-invoice .ipv-kv-row,
+    body.printing-invoice .ipv-total-row,
+    body.printing-invoice .ipv-bank,
+    body.printing-invoice .ipv-qr-wrap { display: flex !important; }
 
-    body.printing-invoice .main-content {
-        display: block !important;
-        padding: 0 !important;
-        max-width: none !important;
+    /* ── ipv-* print container styles ──
+       All layout uses flex with fixed key column (NOT grid).
+       This is the fix for "Andrej Kneisl Andrej Kneisl Andrej Kneisl" duplication.
+    ── */
+    #inv-print-container {
+        font-family: 'DM Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+        font-size: 10.5pt;
+        line-height: 1.6;
+        color: #000;
+        background: #fff;
+        padding: 0;
     }
-    body.printing-invoice .tab-content { display: none !important; }
-    body.printing-invoice #invoices { display: block !important; }
-    body.printing-invoice #inv-root { display: block !important; }
-    body.printing-invoice .inv-header-bar { display: none !important; }
-    body.printing-invoice #adminPanel { display: none !important; }
-    body.printing-invoice #clientToolbar { display: none !important; }
-    body.printing-invoice .inv-two-col {
-        display: block !important;
+
+    /* Brand header */
+    .ipv-header {
+        display: flex;
+        align-items: flex-start;
+        gap: 12pt;
+        margin-bottom: 20pt;
+        padding-bottom: 14pt;
+        border-bottom: 1.5pt solid #000;
     }
-    body.printing-invoice .inv-card {
-        border: none !important;
-        box-shadow: none !important;
-        background: transparent !important;
-        border-radius: 0 !important;
-        backdrop-filter: none !important;
-        -webkit-backdrop-filter: none !important;
+    .ipv-brand-logo { width: 36pt; height: 36pt; flex-shrink: 0; }
+    .ipv-brand-logo img { width: 100%; height: 100%; object-fit: contain; filter: grayscale(100%); }
+    .ipv-brand-text { flex: 1; }
+    .ipv-brand-name {
+        font-family: 'Cormorant Garamond', Georgia, serif;
+        font-size: 20pt;
+        font-weight: 500;
+        letter-spacing: 0.05em;
+        text-transform: uppercase;
+        color: #000;
+        line-height: 1.1;
     }
-    body.printing-invoice .inv-card-hd { display: none !important; }
-    body.printing-invoice .inv-invoice-preview { padding: 0 !important; }
-    body.printing-invoice .inv-brand-name { color: #000 !important; font-size: 22pt !important; }
-    body.printing-invoice .inv-brand-tagline { color: #444 !important; }
-    body.printing-invoice .inv-brand-row { border-bottom: 1pt solid #ddd !important; }
-    body.printing-invoice .inv-title { font-size: 20pt !important; color: #000 !important; }
-    body.printing-invoice .inv-meta { color: #555 !important; }
-    body.printing-invoice .inv-meta b { color: #000 !important; }
-    body.printing-invoice .inv-inner-card {
-        border: 1pt solid #ddd !important;
-        background: #fff !important;
+    .ipv-brand-tagline {
+        font-size: 9pt;
+        color: #555;
+        font-style: italic;
+        margin-top: 3pt;
+        line-height: 1.4;
     }
-    body.printing-invoice .inv-inner-card-hd { background: #f8f8f8 !important; }
-    body.printing-invoice .kv .k { color: #555 !important; }
-    body.printing-invoice .kv .v { color: #000 !important; }
-    body.printing-invoice .inv-service-card { border: 1pt solid #ddd !important; background: #fff !important; }
-    body.printing-invoice .inv-notes { border: 1pt solid #ddd !important; background: #fff !important; color: #333 !important; }
-    body.printing-invoice .inv-sum-box { border: 1pt solid #ddd !important; background: #fff !important; }
-    body.printing-invoice .inv-sum-line { color: #333 !important; }
-    body.printing-invoice .inv-sum-line strong { color: #000 !important; }
-    body.printing-invoice .inv-bank-left { color: #444 !important; }
-    body.printing-invoice .inv-bank-left strong { color: #000 !important; }
-    body.printing-invoice .inv-qr-box { border: 1pt solid #ddd !important; }
-    body.printing-invoice .inv-qr-note { color: #666 !important; }
-    body.printing-invoice .inv-small { color: #666 !important; }
+
+    /* Invoice title + meta row */
+    .ipv-top {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 16pt;
+        margin-bottom: 16pt;
+        padding-bottom: 12pt;
+        border-bottom: 0.5pt solid #ccc;
+        flex-wrap: nowrap;
+    }
+    .ipv-top-left { flex: 1; }
+    .ipv-title {
+        font-family: 'Cormorant Garamond', Georgia, serif;
+        font-size: 20pt;
+        font-weight: 500;
+        color: #000;
+        line-height: 1.2;
+    }
+    .ipv-sub { font-size: 8.5pt; color: #666; margin-top: 3pt; }
+    .ipv-meta { text-align: right; font-size: 9pt; color: #555; }
+    .ipv-meta div { margin-bottom: 3pt; }
+    .ipv-meta span { color: #555; }
+    .ipv-meta b { color: #000; font-weight: 700; }
+
+    /* Supplier / Client two-column section */
+    .ipv-parties {
+        display: flex;
+        gap: 14pt;
+        margin-bottom: 14pt;
+    }
+    .ipv-party { flex: 1; min-width: 0; }
+    .ipv-party-hd {
+        font-size: 7.5pt;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        color: #000;
+        border-bottom: 1pt solid #000;
+        padding-bottom: 4pt;
+        margin-bottom: 8pt;
+    }
+
+    /* Key-value rows — FLEX not grid — eliminates duplication bug */
+    .ipv-kv-row {
+        display: flex;
+        gap: 8pt;
+        margin-bottom: 4pt;
+        font-size: 9.5pt;
+        line-height: 1.5;
+    }
+    .ipv-kv-key {
+        flex: 0 0 80pt;
+        color: #666;
+        font-size: 8.5pt;
+    }
+    .ipv-kv-val {
+        flex: 1;
+        color: #000;
+        font-weight: 600;
+        word-break: break-word;
+    }
+
+    /* Service section */
+    .ipv-service {
+        margin-bottom: 14pt;
+        padding: 10pt 12pt;
+        border: 0.5pt solid #ccc;
+        border-radius: 3pt;
+    }
+    .ipv-service-hd {
+        font-size: 7.5pt;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        color: #000;
+        margin-bottom: 5pt;
+    }
+    .ipv-service-title { font-size: 11pt; font-weight: 600; color: #000; }
+    .ipv-service-ref { font-size: 8.5pt; color: #666; margin-top: 3pt; }
+    .ipv-mono-print {
+        font-family: 'Courier New', monospace;
+        font-size: 8.5pt;
+    }
+
+    /* Total box */
+    .ipv-totals { display: flex; justify-content: flex-end; margin-bottom: 14pt; }
+    .ipv-total-box {
+        min-width: 200pt;
+        border: 0.5pt solid #ccc;
+        border-radius: 3pt;
+        padding: 10pt 12pt;
+    }
+    .ipv-total-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+        gap: 16pt;
+        font-size: 10pt;
+        color: #333;
+        padding: 2pt 0;
+    }
+    .ipv-total-final {
+        border-top: 0.5pt solid #ccc;
+        margin-top: 6pt;
+        padding-top: 6pt;
+    }
+    .ipv-total-final span { font-weight: 600; }
+    .ipv-total-row b {
+        font-family: 'Cormorant Garamond', Georgia, serif;
+        font-size: 14pt;
+        font-weight: 500;
+        color: #000;
+    }
+
+    /* Notes / terms */
+    .ipv-notes {
+        font-size: 9.5pt;
+        line-height: 1.75;
+        color: #333;
+        white-space: pre-wrap;
+        margin-bottom: 14pt;
+        padding: 10pt 12pt;
+        border: 0.5pt solid #ccc;
+        border-radius: 3pt;
+    }
+
+    /* Bank + QR */
+    .ipv-bank {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 14pt;
+        padding-top: 12pt;
+        border-top: 0.5pt solid #ccc;
+    }
+    .ipv-bank-left { flex: 1; font-size: 9pt; color: #444; line-height: 1.8; }
+    .ipv-bank-left strong { color: #000; font-weight: 700; }
+    .ipv-bank-qrhint { font-size: 8pt; color: #777; margin-top: 4pt; }
+    .ipv-qr-wrap { flex-direction: column; align-items: center; }
+    .ipv-qr-box { width: 72pt; height: 72pt; border: 0.5pt solid #ccc; }
+    .ipv-qr-box img { width: 100%; height: 100%; object-fit: contain; }
+    .ipv-qr-note { font-size: 7pt; color: #888; margin-top: 3pt; text-align: center; }
+
+}  /* end @media print */
 
 /* ========================================
-   INVOICE TAB
-   Integrated from wl2026_copy.html.
-   All selectors scoped under #inv-root to prevent
-   conflicts with app CSS.
-   Glass effect used for card backgrounds (live UI only).
-   Print rules are in @media print body.printing-invoice block.
+   INVOICE TAB — LIVE UI
+   Strong specificity: every rule is scoped under
+   `section#invoices` to guarantee it wins over any
+   default or app-wide style. No rule depends on
+   selector ordering or cascading tricks.
    ======================================== */
 
-/* ── Layout ── */
-#inv-root {
+section#invoices { font-family: var(--font-body); }
+
+section#invoices #inv-root {
     max-width: 1100px;
     margin: 0 auto;
 }
 
-.inv-header-bar {
+/* Print container is hidden in live UI */
+.inv-print-container { display: none; }
+
+/* ── Header bar ── */
+section#invoices .inv-header-bar {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: var(--s-lg);
+    margin-bottom: var(--s-xl);
+    padding-bottom: var(--s-lg);
+    border-bottom: 1px solid var(--color-border-light);
     flex-wrap: wrap;
     gap: var(--s-sm);
 }
-
-.inv-badge {
+section#invoices .inv-badge {
     font-size: 10px;
     font-weight: 600;
     text-transform: uppercase;
-    letter-spacing: 0.1em;
+    letter-spacing: 0.12em;
     color: var(--color-gray-light);
-    padding: 5px 12px;
+    padding: 5px 13px;
     border: 1px solid var(--color-border);
     border-radius: 99px;
     background: var(--color-bg);
+    display: inline-block;
+}
+section#invoices #invLangToggle {
+    font-size: var(--fs-sm);
+    font-weight: 500;
+    letter-spacing: 0.03em;
+    padding: 6px 14px;
 }
 
-.inv-lang-btn {
-    font-size: 10px !important;
-    font-weight: 600 !important;
-    letter-spacing: 0.04em;
-    padding: 5px 12px !important;
-}
-
-/* ── Two-column grid: Admin + Preview ── */
-.inv-two-col {
+/* ── Two-column: Admin + Preview ── */
+section#invoices .inv-two-col {
     display: grid;
     grid-template-columns: 1fr;
-    gap: var(--s-lg);
+    gap: var(--s-xl);
     align-items: start;
 }
 @media (min-width: 980px) {
-    .inv-two-col { grid-template-columns: 440px 1fr; }
+    section#invoices .inv-two-col { grid-template-columns: 460px 1fr; }
 }
 
-/* ── Card (glass, matching app style) ── */
-.inv-card {
+/* ── Glass cards ── */
+section#invoices .inv-card {
     background: var(--glass-bg-panel);
     border: 1px solid var(--glass-border);
     border-radius: var(--r-xl);
@@ -1475,261 +1637,380 @@ body.printing-cv #cv-print-container em { display: inline !important; }
     -webkit-backdrop-filter: blur(var(--glass-blur-light));
     box-shadow: var(--shadow-sm);
 }
-.inv-client-toolbar { margin-bottom: var(--s-lg); }
+section#invoices .inv-client-toolbar { margin-bottom: var(--s-xl); }
 
-.inv-card-hd {
-    padding: 11px 20px;
+section#invoices .inv-card-hd {
+    padding: 12px 24px;
     border-bottom: 1px solid var(--color-border-light);
-    background: rgba(0,0,0,.025);
-}
-.inv-card-hd h3 {
+    background: rgba(0,0,0,.02);
     margin: 0;
+}
+section#invoices .inv-card-hd h3 {
+    margin: 0;
+    padding: 0;
     font-size: 10px;
     font-family: var(--font-body);
     font-weight: 600;
     letter-spacing: 0.1em;
     text-transform: uppercase;
     color: var(--color-gray-light);
+    line-height: 1.4;
 }
 
-.inv-card-bd { padding: 20px; }
+section#invoices .inv-card-bd { padding: 24px; }
 
-/* ── Admin form elements — inherit app input style ── */
-#inv-root label {
+/* ── Form labels — explicit reset, maximum specificity ── */
+section#invoices #inv-root label {
     display: block;
     font-size: var(--fs-sm);
     font-weight: 500;
     color: var(--color-black);
-    margin-bottom: 5px;
+    margin: 0 0 5px 0;
+    padding: 0;
+    line-height: 1.4;
+    font-family: var(--font-body);
+    text-transform: none;
+    letter-spacing: normal;
 }
-#inv-root input:not([type="checkbox"]):not([type="file"]),
-#inv-root textarea,
-#inv-root select {
+
+/* ── Inputs / textareas / selects ── */
+section#invoices #inv-root input:not([type="checkbox"]):not([type="file"]),
+section#invoices #inv-root textarea,
+section#invoices #inv-root select {
+    display: block;
     width: 100%;
-    padding: 8px 12px;
+    padding: 9px 13px;
     font-size: var(--fs-sm);
     font-family: var(--font-body);
+    font-weight: 400;
     border: 1px solid var(--color-border);
     border-radius: var(--r-sm);
     background: var(--color-bg);
     color: var(--color-black);
     outline: none;
-    transition: border-color var(--t-fast);
-    margin-bottom: 10px;
+    transition: border-color var(--t-fast), box-shadow var(--t-fast);
+    margin: 0 0 14px 0;
+    line-height: 1.45;
+    box-sizing: border-box;
 }
-#inv-root input:focus,
-#inv-root textarea:focus,
-#inv-root select:focus { border-color: var(--color-black); }
-#inv-root textarea { min-height: 80px; resize: vertical; }
+section#invoices #inv-root input:hover:not(:focus),
+section#invoices #inv-root textarea:hover:not(:focus),
+section#invoices #inv-root select:hover:not(:focus) {
+    border-color: var(--color-gray-subtle);
+}
+section#invoices #inv-root input:focus,
+section#invoices #inv-root textarea:focus,
+section#invoices #inv-root select:focus {
+    border-color: var(--color-black);
+    box-shadow: 0 0 0 3px rgba(10,10,10,.06);
+}
+section#invoices #inv-root textarea {
+    min-height: 88px;
+    resize: vertical;
+    line-height: 1.65;
+}
+section#invoices #inv-root input[type="file"] {
+    font-size: 11px;
+    color: var(--color-gray);
+    margin-bottom: 0;
+}
 
-.inv-row {
+/* ── Two-column field row ── */
+section#invoices .inv-row {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: var(--s-md);
+    gap: 14px;
+    margin: 0;
 }
-.inv-actions {
+section#invoices .inv-row > div { min-width: 0; }
+
+/* ── Action button row ── */
+section#invoices .inv-actions {
     display: flex;
     gap: var(--s-sm);
     flex-wrap: wrap;
+    margin-top: var(--s-md);
+    padding: 0;
 }
-.inv-divider {
+
+/* ── Section divider ── */
+section#invoices .inv-divider {
     border: none;
     border-top: 1px solid var(--color-border-light);
-    margin: 16px 0;
+    margin: 22px 0;
+    padding: 0;
 }
-.inv-section-pill {
-    display: inline-block;
-    font-size: 10px;
-    font-weight: 600;
+
+/* ── Section label — flat hierarchy (NOT a pill) ── */
+section#invoices .inv-section-pill {
+    display: block;
+    font-size: 9.5px;
+    font-weight: 700;
     text-transform: uppercase;
-    letter-spacing: 0.08em;
+    letter-spacing: 0.14em;
     color: var(--color-gray-light);
-    border: 1px solid var(--color-border);
-    border-radius: 99px;
-    padding: 3px 10px;
-    margin-bottom: 12px;
-    background: var(--color-bg-muted);
+    margin: 0 0 16px 0;
+    padding: 0 0 8px 0;
+    border-bottom: 1px solid var(--color-border-light);
+    border-top: none;
+    border-left: none;
+    border-right: none;
+    border-radius: 0;
+    background: none;
+    line-height: 1.4;
 }
-.inv-small {
+
+/* ── Helper text ── */
+section#invoices .inv-small {
     font-size: 11px;
     color: var(--color-gray-light);
-    line-height: 1.6;
+    line-height: 1.65;
+    margin: 0;
+    font-family: var(--font-body);
+    font-weight: 400;
+    font-style: normal;
 }
-.inv-mono { font-family: var(--font-mono); font-size: 11px; }
-.inv-link-status {
+section#invoices .inv-mono {
+    font-family: var(--font-mono);
+    font-size: 10.5px;
+    background: var(--color-bg-muted);
+    padding: 1px 5px;
+    border-radius: 3px;
+    border: 1px solid var(--color-border-light);
+}
+
+/* ── Client link area ── */
+section#invoices .inv-link-status {
     font-size: 11px;
     color: var(--color-gray);
-    margin-top: 6px;
-    min-height: 16px;
+    margin-top: 8px;
+    min-height: 18px;
+    font-style: italic;
+}
+section#invoices .inv-link-section {
+    margin-top: var(--s-xl);
+    padding-top: var(--s-lg);
+    border-top: 1px solid var(--color-border-light);
+}
+
+/* ── Inline checkbox label ── */
+section#invoices #inv-root label.inv-inline-check,
+section#invoices #inv-root .inv-small label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: var(--fs-sm);
+    font-weight: 400;
+    margin: 0;
+}
+section#invoices #inv-root input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+    accent-color: var(--color-black);
+    margin: 0;
 }
 
 /* ── Invoice preview area ── */
-.inv-invoice-preview { padding: 22px; }
+section#invoices .inv-invoice-preview {
+    padding: 28px;
+    font-family: var(--font-body);
+}
 
 /* Brand header inside preview */
-.inv-brand-row {
+section#invoices .inv-brand-row {
     display: flex;
     align-items: flex-start;
-    gap: 12px;
-    margin-bottom: 18px;
-    padding-bottom: 16px;
-    border-bottom: 1px solid var(--color-border-light);
+    gap: 14px;
+    margin-bottom: 24px;
+    padding-bottom: 20px;
+    border-bottom: 1.5px solid var(--color-border);
 }
-.inv-brand-logo {
-    width: 40px; height: 40px;
+section#invoices .inv-brand-logo {
+    width: 42px;
+    height: 42px;
     border-radius: var(--r-md);
     border: 1px solid var(--color-border);
     background: var(--color-bg);
     overflow: hidden;
     display: none;
     flex-shrink: 0;
+    margin-top: 3px;
 }
-.inv-brand-logo.visible { display: block; }
-.inv-brand-logo img { width: 100%; height: 100%; object-fit: contain; }
+section#invoices .inv-brand-logo.visible { display: block; }
+section#invoices .inv-brand-logo img { width: 100%; height: 100%; object-fit: contain; }
 
-.inv-brand-name {
+section#invoices .inv-brand-name {
     font-family: var(--font-display);
-    font-size: 30px;
+    font-size: 28px;
     font-weight: 500;
-    letter-spacing: 0.05em;
+    letter-spacing: 0.06em;
     color: var(--color-black);
     line-height: 1.1;
     text-transform: uppercase;
+    margin: 0;
 }
-.inv-brand-tagline {
+section#invoices .inv-brand-tagline {
     font-size: 11px;
     color: var(--color-gray);
     font-style: italic;
-    margin-top: 3px;
-    line-height: 1.4;
+    margin-top: 5px;
+    line-height: 1.45;
+    font-weight: 300;
 }
 
 /* Invoice top row */
-.inv-top {
+section#invoices .inv-top {
     display: flex;
     justify-content: space-between;
-    gap: 14px;
+    align-items: flex-start;
+    gap: 16px;
     flex-wrap: wrap;
-    margin-bottom: 16px;
+    margin-bottom: 20px;
+    padding-bottom: 18px;
+    border-bottom: 1px solid var(--color-border-light);
 }
-.inv-title {
+section#invoices .inv-title {
     font-family: var(--font-display);
     font-size: 26px;
     font-weight: 500;
     letter-spacing: 0.02em;
     color: var(--color-black);
+    line-height: 1.2;
+    margin: 0;
 }
-.inv-sub-small { font-size: 11px; color: var(--color-gray-light); margin-top: 4px; }
-
-.inv-meta {
+section#invoices .inv-sub-small {
+    font-size: 11px;
+    color: var(--color-gray-light);
+    margin-top: 5px;
+    line-height: 1.5;
+}
+section#invoices .inv-meta {
     display: grid;
-    gap: 4px;
+    gap: 5px;
     font-size: 11.5px;
     color: var(--color-gray);
     text-align: right;
 }
-.inv-meta b { color: var(--color-black); font-weight: 600; }
+section#invoices .inv-meta b { color: var(--color-black); font-weight: 600; }
 
 /* Supplier / Buyer columns */
-.inv-cols {
+section#invoices .inv-cols {
     display: grid;
     grid-template-columns: 1fr;
     gap: 12px;
 }
-@media (min-width: 580px) { .inv-cols { grid-template-columns: 1fr 1fr; } }
+@media (min-width: 580px) {
+    section#invoices .inv-cols { grid-template-columns: 1fr 1fr; }
+}
 
-.inv-inner-card {
-    background: var(--color-bg-alt);
+section#invoices .inv-inner-card {
+    background: var(--color-bg);
     border: 1px solid var(--color-border-light);
     border-radius: var(--r-md);
     overflow: hidden;
 }
-.inv-inner-card-hd {
-    padding: 8px 12px;
+section#invoices .inv-inner-card-hd {
+    padding: 9px 14px;
     border-bottom: 1px solid var(--color-border-light);
-    background: rgba(0,0,0,.02);
+    background: var(--color-bg-alt);
 }
-.inv-inner-card-hd h3 {
+section#invoices .inv-inner-card-hd h3 {
     margin: 0;
     font-size: 9px;
-    font-weight: 600;
+    font-weight: 700;
     text-transform: uppercase;
-    letter-spacing: 0.08em;
+    letter-spacing: 0.1em;
     color: var(--color-gray-light);
+    line-height: 1.4;
 }
-.inv-inner-card-bd { padding: 12px; }
+section#invoices .inv-inner-card-bd { padding: 14px; }
 
-/* Key-value grid inside preview cards */
-.kv { display: grid; grid-template-columns: 110px 1fr; gap: 5px 10px; font-size: 11.5px; }
-.kv .k { color: var(--color-gray-light); }
-.kv .v { color: var(--color-black); font-weight: 600; word-break: break-word; }
+/* ── LIVE-UI key/value: GRID ok here since this is screen-only ── */
+section#invoices .kv {
+    display: grid;
+    grid-template-columns: 118px 1fr;
+    gap: 6px 12px;
+    font-size: 11.5px;
+}
+section#invoices .kv .k { color: var(--color-gray-light); line-height: 1.5; }
+section#invoices .kv .v { color: var(--color-black); font-weight: 600; word-break: break-word; line-height: 1.5; }
 
 /* Service card */
-.inv-service-card {
-    margin-top: 12px;
-    background: var(--color-bg-alt);
+section#invoices .inv-service-card {
+    margin-top: 14px;
+    background: var(--color-bg);
     border: 1px solid var(--color-border-light);
     border-radius: var(--r-md);
     overflow: hidden;
 }
-.inv-service-title { font-weight: 700; font-size: 13px; color: var(--color-black); }
-.inv-ref { font-size: 11px; color: var(--color-gray-light); margin-top: 3px; }
+section#invoices .inv-service-title { font-weight: 600; font-size: 13.5px; color: var(--color-black); line-height: 1.4; }
+section#invoices .inv-ref { font-size: 11px; color: var(--color-gray-light); margin-top: 4px; }
 
-/* Summary box */
-.inv-sum { display: flex; justify-content: flex-end; margin-top: 14px; }
-.inv-sum-box {
-    min-width: 250px;
-    background: var(--color-bg-alt);
-    border: 1px solid var(--color-border-light);
+/* Totals */
+section#invoices .inv-sum { display: flex; justify-content: flex-end; margin-top: 18px; }
+section#invoices .inv-sum-box {
+    min-width: 280px;
+    background: var(--color-bg);
+    border: 1px solid var(--color-border);
     border-radius: var(--r-md);
-    padding: 12px 14px;
+    padding: 14px 18px;
 }
-.inv-sum-line {
+section#invoices .inv-sum-line {
     display: flex;
     justify-content: space-between;
-    gap: 12px;
+    align-items: baseline;
+    gap: 16px;
     font-size: 12.5px;
     color: var(--color-gray-dark);
 }
-.inv-sum-line strong {
+section#invoices .inv-sum-line + .inv-sum-line {
+    margin-top: 8px;
+    padding-top: 8px;
+    border-top: 1px solid var(--color-border-light);
+}
+section#invoices .inv-sum-line strong {
     color: var(--color-black);
     font-family: var(--font-display);
-    font-size: 15px;
+    font-size: 17px;
+    font-weight: 500;
 }
 
-/* Notes / terms block */
-.inv-notes {
-    margin-top: 14px;
-    padding: 12px 14px;
+/* Notes / terms */
+section#invoices .inv-notes {
+    margin-top: 16px;
+    padding: 14px 18px;
     border-radius: var(--r-md);
     border: 1px solid var(--color-border-light);
     background: var(--color-bg-alt);
     color: var(--color-gray-dark);
     font-size: 12px;
-    line-height: 1.7;
+    line-height: 1.75;
     white-space: pre-wrap;
 }
 
 /* Bank + QR row */
-.inv-bank-row {
-    margin-top: 14px;
+section#invoices .inv-bank-row {
+    margin-top: 20px;
+    padding-top: 18px;
+    border-top: 1px solid var(--color-border-light);
     display: flex;
     justify-content: space-between;
-    gap: 14px;
+    gap: 16px;
     flex-wrap: wrap;
     align-items: flex-start;
 }
-.inv-bank-left {
+section#invoices .inv-bank-left {
     flex: 1;
     min-width: 200px;
     color: var(--color-gray);
     font-size: 11.5px;
-    line-height: 1.8;
+    line-height: 1.85;
 }
-.inv-bank-left strong { color: var(--color-black); }
+section#invoices .inv-bank-left strong { color: var(--color-black); font-weight: 600; }
 
-.inv-qr-box {
-    width: 120px; height: 120px;
+section#invoices .inv-qr-box {
+    width: 110px;
+    height: 110px;
     border-radius: var(--r-md);
     border: 1px solid var(--color-border);
     background: #fff;
@@ -1738,22 +2019,24 @@ body.printing-cv #cv-print-container em { display: inline !important; }
     justify-content: center;
     overflow: hidden;
 }
-.inv-qr-box img { width: 100%; height: 100%; object-fit: contain; }
-.inv-qr-note { margin-top: 5px; font-size: 10px; color: var(--color-gray-light); text-align: center; }
+section#invoices .inv-qr-box img { width: 100%; height: 100%; object-fit: contain; }
+section#invoices .inv-qr-note {
+    margin-top: 5px;
+    font-size: 10px;
+    color: var(--color-gray-light);
+    text-align: center;
+}
 
-/* ── Public mode: hide invoices tab ──
-   IMPORTANT: invoice tab hidden in recruiter-facing view.
-   This works together with togglePublicMode() and checkURLParams()
-   in script.js which also set display:none on the button element.
-   ── */
+/* ── Public mode: hide invoices tab ── */
 .public-mode #invoices-tab-btn { display: none !important; }
 
 /* ── Responsive ── */
 @media (max-width: 768px) {
-    .inv-row { grid-template-columns: 1fr; }
-    .inv-header-bar { flex-direction: column; align-items: flex-start; }
+    section#invoices .inv-row { grid-template-columns: 1fr; }
+    section#invoices .inv-header-bar { flex-direction: column; align-items: flex-start; }
+    section#invoices .inv-invoice-preview { padding: 18px; }
+    section#invoices .inv-card-bd { padding: 18px; }
 }
-
 /* ========================================
    CONTACT ITEM — EMPTY STATE
    ======================================== */

@@ -2413,17 +2413,144 @@ const INV = (() => {
         window.location.href = `mailto:?subject=${subject}&body=${encodeURIComponent(body)}`;
     }
 
+    // ── Build invoice print HTML ──────────────────────────────────
+    // Generates clean, flat HTML for a dedicated print container.
+    // Uses flex rows (NOT grid) to avoid Chrome's print duplication bug
+    // that caused "Andrej Kneisl Andrej Kneisl Andrej Kneisl" in previous PDFs.
+    // All values are HTML-escaped to be safe.
+    function escapeHtml(str) {
+        return (str ?? '').toString()
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;');
+    }
+
+    function buildInvoicePrint() {
+        const data = readForm();
+        const t    = I18N[invLang];
+
+        // Helper to build a single k/v row (pure flex, no grid)
+        const kvRow = (key, val) => {
+            if (!val) return ''; // skip empty rows to avoid dashes
+            return `<div class="ipv-kv-row"><span class="ipv-kv-key">${escapeHtml(key)}</span><span class="ipv-kv-val">${escapeHtml(val)}</span></div>`;
+        };
+
+        // Optional brand logo
+        const logoHtml = data.brandLogo
+            ? `<div class="ipv-brand-logo"><img src="${escapeHtml(data.brandLogo)}" alt="" onerror="this.parentElement.style.display='none';"></div>`
+            : '';
+
+        // Contact combined
+        const contactText = [data.contactName, data.contactEmail].filter(Boolean).join(' · ');
+
+        // Supplier rows
+        const supplierRows = [
+            kvRow(t.kName,    data.supplierName),
+            kvRow(t.kAddress, data.supplierAddress),
+            kvRow(t.kTax,     data.supplierTax),
+            kvRow('Email',    data.supplierEmail),
+            kvRow(t.kVat,     data.supplierVatNote),
+        ].join('');
+
+        // Client rows
+        const clientRows = [
+            kvRow(t.kBuyer,     data.buyerDisplay),
+            kvRow(t.kBuyerAddr, data.buyerAddress),
+            kvRow(t.kBuyerTax,  data.buyerTax),
+            kvRow(t.kBuyerVat,  data.buyerVat),
+            kvRow(t.kContact,   contactText),
+        ].join('');
+
+        // QR image — include only if enabled and we have a source
+        const qrSrc = data.qrDataUrl || data.qr;
+        const qrHtml = (data.qrEnabled && qrSrc)
+            ? `<div class="ipv-qr-wrap"><div class="ipv-qr-box"><img src="${escapeHtml(qrSrc)}" alt="QR" onerror="this.parentElement.parentElement.style.display='none';"></div><div class="ipv-qr-note">${escapeHtml(t.qrNote)}</div></div>`
+            : '';
+
+        // Top sub-line (supplier email · bank)
+        const topSubParts = [data.supplierEmail, data.bankName].filter(Boolean);
+        const topSub = topSubParts.length ? topSubParts.join(' · ') : '';
+
+        return `
+            <div class="ipv-header">
+                ${logoHtml}
+                <div class="ipv-brand-text">
+                    <div class="ipv-brand-name">${escapeHtml(data.brandName || 'INVOICE')}</div>
+                    ${data.brandTagline ? `<div class="ipv-brand-tagline">${escapeHtml(data.brandTagline)}</div>` : ''}
+                </div>
+            </div>
+
+            <div class="ipv-top">
+                <div class="ipv-top-left">
+                    <div class="ipv-title">${escapeHtml(t.invoiceTitle)}</div>
+                    ${topSub ? `<div class="ipv-sub">${escapeHtml(topSub)}</div>` : ''}
+                </div>
+                <div class="ipv-meta">
+                    ${data.inv         ? `<div><span>${escapeHtml(t.metaInv)}</span> <b>${escapeHtml(data.inv)}</b></div>` : ''}
+                    ${data.issue       ? `<div><span>${escapeHtml(t.metaIssue)}</span> <b>${escapeHtml(data.issue)}</b></div>` : ''}
+                    ${data.serviceDate ? `<div><span>${escapeHtml(t.metaService)}</span> <b>${escapeHtml(data.serviceDate)}</b></div>` : ''}
+                    ${data.due         ? `<div><span>${escapeHtml(t.metaDue)}</span> <b>${escapeHtml(data.due)}</b></div>` : ''}
+                </div>
+            </div>
+
+            <div class="ipv-parties">
+                <div class="ipv-party">
+                    <div class="ipv-party-hd">${escapeHtml(t.supplierHdr)}</div>
+                    ${supplierRows}
+                </div>
+                <div class="ipv-party">
+                    <div class="ipv-party-hd">${escapeHtml(t.buyerHdr)}</div>
+                    ${clientRows}
+                </div>
+            </div>
+
+            ${data.serviceTitle ? `
+            <div class="ipv-service">
+                <div class="ipv-service-hd">${escapeHtml(t.serviceHdr)}</div>
+                <div class="ipv-service-title">${escapeHtml(data.serviceTitle)}</div>
+                ${data.inv ? `<div class="ipv-service-ref">${escapeHtml(t.ref)} <span class="ipv-mono-print">${escapeHtml(data.inv)}</span></div>` : ''}
+            </div>
+            ` : ''}
+
+            <div class="ipv-totals">
+                <div class="ipv-total-box">
+                    <div class="ipv-total-row"><span>${escapeHtml(t.amountLbl)}</span><b>${escapeHtml(data.amount)} ${escapeHtml(data.currency)}</b></div>
+                    <div class="ipv-total-row ipv-total-final"><span>${escapeHtml(t.totalLbl)}</span><b>${escapeHtml(data.amount)} ${escapeHtml(data.currency)}</b></div>
+                </div>
+            </div>
+
+            ${data.notes ? `<div class="ipv-notes">${escapeHtml(data.notes)}</div>` : ''}
+
+            <div class="ipv-bank">
+                <div class="ipv-bank-left">
+                    ${data.bankName ? `<div><strong>${escapeHtml(t.bankLbl)}:</strong> ${escapeHtml(data.bankName)}</div>` : ''}
+                    ${data.iban     ? `<div><strong>IBAN:</strong> ${escapeHtml(data.iban)}</div>` : ''}
+                    ${data.bic      ? `<div><strong>BIC:</strong> ${escapeHtml(data.bic)}</div>` : ''}
+                    ${(data.qrEnabled && qrSrc) ? `<div class="ipv-bank-qrhint">${escapeHtml(t.qrHint)}</div>` : ''}
+                </div>
+                ${qrHtml}
+            </div>
+        `;
+    }
+
     // ── Invoice print / PDF ───────────────────────────────────────
-    // Adapted: adds body.printing-invoice class (like other export modes)
-    // so @media print CSS shows only the invoice preview cleanly.
+    // Fills #inv-print-container with clean flat HTML then adds
+    // body.printing-invoice class so @media print CSS shows ONLY that container.
+    // This approach mirrors the CV print fix — dedicated print structure,
+    // no grid, eliminates Chrome's print duplication bug.
     function invPrint() {
+        const container = document.getElementById('inv-print-container');
+        if (container) {
+            container.innerHTML = buildInvoicePrint();
+        }
         document.body.classList.add('printing-invoice');
         const cleanup = () => {
             document.body.classList.remove('printing-invoice');
             window.removeEventListener('afterprint', cleanup);
         };
         window.addEventListener('afterprint', cleanup);
-        setTimeout(() => window.print(), 100);
+        setTimeout(() => window.print(), 120);
     }
 
     // ── Live update bindings ──────────────────────────────────────
