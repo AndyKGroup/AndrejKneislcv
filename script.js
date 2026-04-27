@@ -2426,132 +2426,203 @@ const INV = (() => {
             .replace(/"/g, '&quot;');
     }
 
+    // ── Build invoice HTML (standalone, matches white-label reference) ──
     function buildInvoicePrint() {
         const data = readForm();
         const t    = I18N[invLang];
+        const e = (s) => (s ?? '').toString()
+            .replace(/&/g,'&amp;').replace(/</g,'&lt;')
+            .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 
-        // Helper to build a single k/v row (pure flex, no grid)
-        const kvRow = (key, val) => {
-            if (!val) return ''; // skip empty rows to avoid dashes
-            return `<div class="ipv-kv-row"><span class="ipv-kv-key">${escapeHtml(key)}</span><span class="ipv-kv-val">${escapeHtml(val)}</span></div>`;
+        // All rows rendered including empty (shows '—'), matching reference
+        const row = (key, val) => {
+            const v = (val || '').trim() || '\u2014';
+            return `<tr><td class="k">${e(key)}</td><td class="v">${e(v)}</td></tr>`;
         };
 
-        // Optional brand logo
-        const logoHtml = data.brandLogo
-            ? `<div class="ipv-brand-logo"><img src="${escapeHtml(data.brandLogo)}" alt="" onerror="this.parentElement.style.display='none';"></div>`
-            : '';
-
-        // Contact combined
-        const contactText = [data.contactName, data.contactEmail].filter(Boolean).join(' · ');
-
-        // Supplier rows
-        const supplierRows = [
-            kvRow(t.kName,    data.supplierName),
-            kvRow(t.kAddress, data.supplierAddress),
-            kvRow(t.kTax,     data.supplierTax),
-            kvRow('Email',    data.supplierEmail),
-            kvRow(t.kVat,     data.supplierVatNote),
-        ].join('');
-
-        // Client rows
-        const clientRows = [
-            kvRow(t.kBuyer,     data.buyerDisplay),
-            kvRow(t.kBuyerAddr, data.buyerAddress),
-            kvRow(t.kBuyerTax,  data.buyerTax),
-            kvRow(t.kBuyerVat,  data.buyerVat),
-            kvRow(t.kContact,   contactText),
-        ].join('');
-
-        // QR image — include only if enabled and we have a source
-        const qrSrc = data.qrDataUrl || data.qr;
-        const qrHtml = (data.qrEnabled && qrSrc)
-            ? `<div class="ipv-qr-wrap"><div class="ipv-qr-box"><img src="${escapeHtml(qrSrc)}" alt="QR" onerror="this.parentElement.parentElement.style.display='none';"></div><div class="ipv-qr-note">${escapeHtml(t.qrNote)}</div></div>`
-            : '';
-
-        // Top sub-line (supplier email · bank)
-        const topSubParts = [data.supplierEmail, data.bankName].filter(Boolean);
-        const topSub = topSubParts.length ? topSubParts.join(' · ') : '';
+        const contactLine = [data.contactName, data.contactEmail].filter(Boolean).join(' \u00b7 ');
+        const topSub = [data.supplierEmail, data.bankName].filter(Boolean).join(' \u00b7 ');
+        const qrSrc  = (data.qrDataUrl || data.qr || '').trim();
+        const showQR = data.qrEnabled && qrSrc;
+        const logoSrc = (data.brandLogo || '').trim();
 
         return `
-            <div class="ipv-header">
-                ${logoHtml}
-                <div class="ipv-brand-text">
-                    <div class="ipv-brand-name">${escapeHtml(data.brandName || 'INVOICE')}</div>
-                    ${data.brandTagline ? `<div class="ipv-brand-tagline">${escapeHtml(data.brandTagline)}</div>` : ''}
-                </div>
-            </div>
-
-            <div class="ipv-top">
-                <div class="ipv-top-left">
-                    <div class="ipv-title">${escapeHtml(t.invoiceTitle)}</div>
-                    ${topSub ? `<div class="ipv-sub">${escapeHtml(topSub)}</div>` : ''}
-                </div>
-                <div class="ipv-meta">
-                    ${data.inv         ? `<div><span>${escapeHtml(t.metaInv)}</span> <b>${escapeHtml(data.inv)}</b></div>` : ''}
-                    ${data.issue       ? `<div><span>${escapeHtml(t.metaIssue)}</span> <b>${escapeHtml(data.issue)}</b></div>` : ''}
-                    ${data.serviceDate ? `<div><span>${escapeHtml(t.metaService)}</span> <b>${escapeHtml(data.serviceDate)}</b></div>` : ''}
-                    ${data.due         ? `<div><span>${escapeHtml(t.metaDue)}</span> <b>${escapeHtml(data.due)}</b></div>` : ''}
-                </div>
-            </div>
-
-            <div class="ipv-parties">
-                <div class="ipv-party">
-                    <div class="ipv-party-hd">${escapeHtml(t.supplierHdr)}</div>
-                    ${supplierRows}
-                </div>
-                <div class="ipv-party">
-                    <div class="ipv-party-hd">${escapeHtml(t.buyerHdr)}</div>
-                    ${clientRows}
-                </div>
-            </div>
-
-            ${data.serviceTitle ? `
-            <div class="ipv-service">
-                <div class="ipv-service-hd">${escapeHtml(t.serviceHdr)}</div>
-                <div class="ipv-service-title">${escapeHtml(data.serviceTitle)}</div>
-                ${data.inv ? `<div class="ipv-service-ref">${escapeHtml(t.ref)} <span class="ipv-mono-print">${escapeHtml(data.inv)}</span></div>` : ''}
-            </div>
-            ` : ''}
-
-            <div class="ipv-totals">
-                <div class="ipv-total-box">
-                    <div class="ipv-total-row"><span>${escapeHtml(t.amountLbl)}</span><b>${escapeHtml(data.amount)} ${escapeHtml(data.currency)}</b></div>
-                    <div class="ipv-total-row ipv-total-final"><span>${escapeHtml(t.totalLbl)}</span><b>${escapeHtml(data.amount)} ${escapeHtml(data.currency)}</b></div>
-                </div>
-            </div>
-
-            ${data.notes ? `<div class="ipv-notes">${escapeHtml(data.notes)}</div>` : ''}
-
-            <div class="ipv-bank">
-                <div class="ipv-bank-left">
-                    ${data.bankName ? `<div><strong>${escapeHtml(t.bankLbl)}:</strong> ${escapeHtml(data.bankName)}</div>` : ''}
-                    ${data.iban     ? `<div><strong>IBAN:</strong> ${escapeHtml(data.iban)}</div>` : ''}
-                    ${data.bic      ? `<div><strong>BIC:</strong> ${escapeHtml(data.bic)}</div>` : ''}
-                    ${(data.qrEnabled && qrSrc) ? `<div class="ipv-bank-qrhint">${escapeHtml(t.qrHint)}</div>` : ''}
-                </div>
-                ${qrHtml}
-            </div>
-        `;
+<table class="header-tbl" cellpadding="0" cellspacing="0">
+  <tr>
+    ${logoSrc ? `<td class="logo-cell"><img class="logo" src="${e(logoSrc)}" alt="" onerror="this.parentElement.style.display='none';"></td>` : ''}
+    <td class="brand-cell">
+      <div class="brand-name">${e(data.brandName || 'INVOICE')}</div>
+      ${data.brandTagline ? `<div class="brand-tag">${e(data.brandTagline)}</div>` : ''}
+    </td>
+  </tr>
+</table>
+<table class="top-tbl" cellpadding="0" cellspacing="0">
+  <tr>
+    <td class="title-cell">
+      <div class="inv-title">${e(t.invoiceTitle)}</div>
+      ${topSub ? `<div class="inv-sub">${e(topSub)}</div>` : ''}
+    </td>
+    <td class="meta-cell">
+      ${data.inv         ? `<div>${e(t.metaInv)} <b>${e(data.inv)}</b></div>` : ''}
+      ${data.issue       ? `<div>${e(t.metaIssue)} <b>${e(data.issue)}</b></div>` : ''}
+      ${data.serviceDate ? `<div>${e(t.metaService)} <b>${e(data.serviceDate)}</b></div>` : ''}
+      ${data.due         ? `<div>${e(t.metaDue)} <b>${e(data.due)}</b></div>` : ''}
+    </td>
+  </tr>
+</table>
+<table class="parties-tbl" cellpadding="0" cellspacing="0">
+  <tr>
+    <td class="party-col">
+      <div class="party-hd">${e(t.supplierHdr)}</div>
+      <table class="kv-tbl" cellpadding="0" cellspacing="0">
+        ${row(t.kName,    data.supplierName)}
+        ${row(t.kAddress, data.supplierAddress)}
+        ${row(t.kTax,     data.supplierTax)}
+        ${row('Email',    data.supplierEmail)}
+        ${row(t.kVat,     data.supplierVatNote)}
+      </table>
+    </td>
+    <td class="party-gap"></td>
+    <td class="party-col">
+      <div class="party-hd">${e(t.buyerHdr)}</div>
+      <table class="kv-tbl" cellpadding="0" cellspacing="0">
+        ${row(t.kBuyer,     data.buyerDisplay)}
+        ${row(t.kBuyerAddr, data.buyerAddress)}
+        ${row(t.kBuyerTax,  data.buyerTax)}
+        ${row(t.kBuyerVat,  data.buyerVat)}
+        ${row(t.kContact,   contactLine)}
+      </table>
+    </td>
+  </tr>
+</table>
+${data.serviceTitle ? `
+<div class="service-block">
+  <div class="service-name">${e(data.serviceTitle)}</div>
+  <div class="service-ref">${e(t.ref)} ${e(data.inv || '')}</div>
+</div>` : ''}
+<table class="totals-tbl" cellpadding="0" cellspacing="0">
+  <tr><td class="tot-label">${e(t.amountLbl)}</td><td class="tot-value">${e(data.amount)} ${e(data.currency)}</td></tr>
+  <tr class="tot-final"><td class="tot-label">${e(t.totalLbl)}</td><td class="tot-value">${e(data.amount)} ${e(data.currency)}</td></tr>
+</table>
+${data.notes ? `<div class="notes-block">${e(data.notes)}</div>` : ''}
+<table class="bank-tbl" cellpadding="0" cellspacing="0">
+  <tr>
+    <td class="bank-cell">
+      ${data.bankName ? `<div><b>${e(t.bankLbl)}:</b> ${e(data.bankName)}</div>` : ''}
+      ${data.iban     ? `<div><b>IBAN:</b> ${e(data.iban)}</div>` : ''}
+      ${data.bic      ? `<div><b>BIC:</b> ${e(data.bic)}</div>` : ''}
+      ${showQR ? `<div class="scan-lbl">${e(t.qrHint)}</div>` : ''}
+    </td>
+    ${showQR ? `<td class="qr-cell">
+      <img src="${e(qrSrc)}" alt="QR" class="qr-img" onerror="this.parentElement.style.display='none';">
+      <div class="qr-lbl">${e(t.qrNote)}</div>
+    </td>` : ''}
+  </tr>
+</table>`;
     }
 
-    // ── Invoice print / PDF ───────────────────────────────────────
-    // Fills #inv-print-container with clean flat HTML then adds
-    // body.printing-invoice class so @media print CSS shows ONLY that container.
-    // This approach mirrors the CV print fix — dedicated print structure,
-    // no grid, eliminates Chrome's print duplication bug.
+    // ── invPrint: blank window — no DOM conflicts, fonts.ready before print ──
     function invPrint() {
-        const container = document.getElementById('inv-print-container');
-        if (container) {
-            container.innerHTML = buildInvoicePrint();
-        }
-        document.body.classList.add('printing-invoice');
-        const cleanup = () => {
-            document.body.classList.remove('printing-invoice');
-            window.removeEventListener('afterprint', cleanup);
-        };
-        window.addEventListener('afterprint', cleanup);
-        setTimeout(() => window.print(), 120);
+        const bodyHtml = buildInvoicePrint();
+
+        const css = `
+* { box-sizing: border-box; margin: 0; padding: 0; }
+@page { margin: 1.5cm 2cm; size: A4 portrait; }
+body {
+    font-family: 'DM Sans','Helvetica Neue',Helvetica,Arial,sans-serif;
+    font-size: 9.5pt; line-height: 1.55; color: #000; background: #fff;
+    -webkit-print-color-adjust: exact; print-color-adjust: exact;
+}
+/* ── Brand header ── */
+.header-tbl { width: 100%; border-collapse: collapse; }
+.header-tbl td { border-bottom: 1.5pt solid #000; padding-bottom: 8pt; vertical-align: middle; }
+.logo-cell { width: 36pt; padding-right: 8pt; }
+.logo { width: 32pt; height: 32pt; object-fit: contain; filter: grayscale(100%); display: block; }
+.brand-name {
+    font-family: 'Cormorant Garamond',Georgia,serif;
+    font-size: 17pt; font-weight: 500;
+    letter-spacing: 0.06em; text-transform: uppercase; color: #000; line-height: 1.1;
+}
+.brand-tag { font-size: 8pt; color: #555; font-style: italic; margin-top: 3pt; }
+/* ── Title + meta row ── */
+.top-tbl { width: 100%; border-collapse: collapse; }
+.top-tbl td { padding-top: 9pt; padding-bottom: 9pt; border-bottom: 0.5pt solid #ccc; vertical-align: top; }
+.title-cell { width: 52%; }
+.inv-title {
+    font-family: 'Cormorant Garamond',Georgia,serif;
+    font-size: 15pt; font-weight: 500; color: #000; line-height: 1.2;
+}
+.inv-sub { font-size: 8pt; color: #666; margin-top: 3pt; }
+.meta-cell { text-align: right; font-size: 8.5pt; color: #555; line-height: 1.8; }
+.meta-cell div { margin-bottom: 1.5pt; }
+.meta-cell b { color: #000; font-weight: 700; }
+/* ── KV table: flat sequential rows ── */
+.kv-tbl { width: 100%; border-collapse: collapse; margin-top: 0; }
+.kv-tbl tr { border-bottom: 0.3pt solid #e8e8e8; }
+.kv-tbl tr:first-child .k, .kv-tbl tr:first-child .v { padding-top: 8pt; }
+.kv-tbl tr:last-child  .k, .kv-tbl tr:last-child  .v { padding-bottom: 8pt; }
+.k { width: 90pt; font-size: 8.5pt; color: #777; padding: 3pt 10pt 3pt 0; vertical-align: top; }
+.v { font-size: 9pt; color: #000; font-weight: 600; padding: 3pt 0; vertical-align: top; word-break: break-word; }
+/* ── Two-column: Supplier | Client ── */
+.parties-tbl { width: 100%; border-collapse: collapse; margin: 8pt 0; }
+.party-col { width: 48%; vertical-align: top; border: 0.5pt solid #ccc; border-radius: 2pt; padding: 8pt 10pt; }
+.party-gap { width: 4%; }
+.party-hd { font-size: 7.5pt; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: #888; padding-bottom: 6pt; margin-bottom: 4pt; border-bottom: 0.5pt solid #ddd; }
+.kv-tbl { width: 100%; border-collapse: collapse; }
+.kv-tbl tr { border-bottom: 0.3pt solid #f0f0f0; }
+.kv-tbl tr:last-child { border-bottom: none; }
+/* ── Service ── */
+.service-block { padding: 7pt 0; border-top: 0.5pt solid #ccc; border-bottom: 0.5pt solid #ccc; }
+.service-name { font-size: 10.5pt; font-weight: 700; color: #000; }
+.service-ref  { font-size: 8pt; color: #777; margin-top: 2pt; font-family: 'Courier New',monospace; }
+/* ── Totals ── */
+.totals-tbl { border-collapse: collapse; margin-left: auto; min-width: 200pt; margin-top: 7pt; margin-bottom: 7pt; }
+.tot-label { font-size: 9pt; color: #555; padding: 3pt 24pt 3pt 0; }
+.tot-value { font-family: 'Cormorant Garamond',Georgia,serif; font-size: 12pt; font-weight: 500; color: #000; text-align: right; white-space: nowrap; }
+.tot-final .tot-label,
+.tot-final .tot-value { border-top: 0.5pt solid #ccc; padding-top: 5pt; font-weight: 700; }
+/* ── Notes ── */
+.notes-block { font-size: 8.5pt; line-height: 1.7; color: #333; white-space: pre-wrap; padding: 7pt 0; border-top: 0.5pt solid #ccc; border-bottom: 0.5pt solid #ccc; margin-bottom: 7pt; }
+/* ── Bank ── */
+.bank-tbl { width: 100%; border-collapse: collapse; }
+.bank-tbl td { padding-top: 7pt; border-top: 0.5pt solid #ccc; vertical-align: top; }
+.bank-cell { font-size: 8.5pt; color: #444; line-height: 1.85; }
+.bank-cell b { color: #000; font-weight: 700; }
+.bank-cell div { margin-bottom: 1pt; }
+.scan-lbl { font-size: 7.5pt; color: #777; margin-top: 4pt; }
+.qr-cell  { width: 70pt; text-align: right; padding-left: 12pt; }
+.qr-img   { width: 60pt; height: 60pt; object-fit: contain; display: block; border: 0.5pt solid #ccc; margin-left: auto; }
+.qr-lbl   { font-size: 7pt; color: #888; margin-top: 2pt; text-align: center; }
+`;
+
+        const html = `<!DOCTYPE html>
+<html lang="${invLang}">
+<head>
+<meta charset="UTF-8">
+<title>Invoice</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet">
+<style>${css}</style>
+</head>
+<body>
+${bodyHtml}
+<script>
+  // Wait for fonts to fully load, then print — no timeout guessing
+  document.fonts.ready.then(function() {
+    window.print();
+  });
+<\/script>
+</body>
+</html>`;
+
+        const w = window.open('', '_blank', 'width=860,height=760');
+        if (!w) { alert('Please allow popups to print the invoice.'); return; }
+        w.document.open();
+        w.document.write(html);
+        w.document.close();
     }
+
 
     // ── Live update bindings ──────────────────────────────────────
     function bindLiveUpdates() {
