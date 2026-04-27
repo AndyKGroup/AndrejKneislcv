@@ -31,6 +31,13 @@
                     <option value="sk">SK</option>
                     <option value="es">ES</option>
                 </select>
+                <!-- Share modal trigger -->
+                <button class="btn btn-ghost" id="share-btn" onclick="openShareModal()" title="Share link">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/>
+                        <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
+                    </svg>
+                </button>
                 <!-- Public mode toggle — switches to recruiter-facing view -->
                 <button class="btn btn-ghost" id="public-mode-toggle" onclick="togglePublicMode()" title="Toggle public view">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -112,6 +119,14 @@
                     </div>
                 </div>
 
+                <!-- Download bar — visible ONLY in public/HR mode -->
+                <div class="cv-public-download" id="cv-public-download">
+                    <button class="btn btn-primary" onclick="exportCV()">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right:6px;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                        <span data-i18n="cv.exportPDF">Download CV as PDF</span>
+                    </button>
+                </div>
+
                 <!-- CV Actions (hidden in public mode) -->
                 <div class="cv-actions">
                     <button class="btn btn-primary" onclick="exportCV()">
@@ -181,6 +196,11 @@
                         <span data-i18n="deck.presentationMode">Presentation Mode</span>
                     </button>
                 </div>
+                <!-- Presentation mode exit button — visible only in presentation mode -->
+                <button class="pres-exit-btn" id="pres-exit-btn" onclick="exitPresentationMode()" style="display:none;" title="Exit presentation mode (Esc)">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                    <span data-i18n="deck.exitPresentation">Exit</span>
+                </button>
 
                 <div class="deck-slides-wrapper">
                     <div class="deck-slides" id="deck-slides">
@@ -663,25 +683,13 @@
                             </div>
                             <div class="inv-row">
                                 <div><label id="t_lbl_amount">Amount</label><input id="amount" value="150"></div>
-                                <div>
-                                    <label id="t_lbl_qr">Bank QR image URL</label>
-                                    <input id="qr" placeholder="QR image URL (optional)">
-                                    <div class="inv-small" style="margin-top:6px;">
-                                        <label style="display:flex;gap:8px;align-items:center;">
-                                            <input type="checkbox" id="qrEnabled" checked style="width:auto;accent-color:var(--color-black);">
-                                            <span id="t_qr_enabled">Show QR on invoice</span>
-                                        </label>
-                                    </div>
-                                    <div style="margin-top:10px;">
-                                        <label id="t_lbl_qr_upload">Upload QR (PNG/JPG)</label>
-                                        <input id="qrUpload" type="file" accept="image/png,image/jpeg,image/webp">
-                                        <div class="inv-small" style="margin-top:5px;" id="t_qr_upload_hint">Upload has priority. To use URL again, clear the upload.</div>
-                                        <div class="inv-actions" style="margin-top:8px;">
-                                            <button type="button" class="btn btn-secondary" id="btnClearQrUpload">Clear upload</button>
-                                        </div>
-                                    </div>
-                                </div>
+                                <div><label id="t_lbl_currency2"></label></div>
                             </div>
+                            <!-- QR fields removed -->
+                            <!-- Hidden inputs kept for JS compatibility -->
+                            <input type="hidden" id="qr" value="">
+                            <input type="hidden" id="qrEnabled" value="false">
+                            <input type="hidden" id="qrUpload" value="">
                             <div>
                                 <label id="t_lbl_note">Note / Terms (template)</label>
                                 <textarea id="notes">Nárok na odmenu vznikol na základe dokončeného obchodného cyklu, vrátane kompletne vyplneného CRM, follow-upov a mesačného reportu pre projekt {{PROJECT_NAME}}.</textarea>
@@ -838,12 +846,8 @@
                                     <div><strong><span id="t_bank_lbl">Bank</span>:</strong> <span id="vBankName">—</span></div>
                                     <div><strong>IBAN:</strong> <span id="vIban">—</span></div>
                                     <div><strong>BIC:</strong> <span id="vBic">—</span></div>
-                                    <div class="inv-small" id="t_qr_hint" style="margin-top:6px;">Scan to pay.</div>
                                 </div>
-                                <div id="qrWrap">
-                                    <div class="inv-qr-box"><img id="qrImg" alt="QR code"></div>
-                                    <div class="inv-qr-note" id="t_qr_note">Scan to pay</div>
-                                </div>
+<!-- QR preview removed -->
                             </div>
 
                         </div><!-- /inv-invoice-preview -->
@@ -872,6 +876,104 @@
         bug that previously caused supplier/client values to render 3× in PDFs.
     -->
     <div id="inv-print-container" class="inv-print-container"></div>
+
+
+    <!-- ========================================
+         SHARE MODAL
+         Choose what to share before generating link.
+         openShareModal() shows it, closeShareModal() hides it.
+         ======================================== -->
+    <div id="share-modal-overlay" class="share-overlay" onclick="closeShareModal()"></div>
+    <div id="share-modal" class="share-modal" role="dialog" aria-modal="true">
+        <div class="share-modal-hd">
+            <h2 class="share-modal-title" data-i18n="share.title">Share Link</h2>
+            <button class="share-modal-close" onclick="closeShareModal()" aria-label="Close">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            </button>
+        </div>
+        <div class="share-modal-bd">
+            <p class="share-modal-hint" data-i18n="share.hint">Choose what the recipient should see when they open the link.</p>
+
+            <!-- Option 1: CV / Profile -->
+            <label class="share-option" id="share-opt-cv">
+                <input type="radio" name="share-type" value="cv" checked>
+                <div class="share-option-content">
+                    <div class="share-option-icon">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="8" y1="8" x2="16" y2="8"/><line x1="8" y1="12" x2="16" y2="12"/><line x1="8" y1="16" x2="12" y2="16"/></svg>
+                    </div>
+                    <div>
+                        <div class="share-option-label" data-i18n="share.cvLabel">CV &amp; Profile</div>
+                        <div class="share-option-desc" data-i18n="share.cvDesc">CV, Pitch Deck — recruiter-friendly view, no invoices</div>
+                    </div>
+                </div>
+            </label>
+
+            <!-- Cover Letter toggle — only visible when CV & Profile is selected -->
+            <div class="share-cover-row" id="share-cover-row">
+                <label class="share-cover-check">
+                    <input type="checkbox" id="share-include-cover">
+                    <span data-i18n="share.includeCover">Include Cover Letter</span>
+                </label>
+                <span class="share-cover-hint" data-i18n="share.coverHint">HR will see the cover letter as read-only text</span>
+            </div>
+
+            <!-- Option 2: Invoice -->
+            <label class="share-option" id="share-opt-inv">
+                <input type="radio" name="share-type" value="invoice">
+                <div class="share-option-content">
+                    <div class="share-option-icon">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="8" y1="8" x2="13" y2="8"/><line x1="8" y1="12" x2="16" y2="12"/><line x1="14" y1="16" x2="16" y2="16"/></svg>
+                    </div>
+                    <div>
+                        <div class="share-option-label" data-i18n="share.invoiceLabel">Invoice</div>
+                        <div class="share-option-desc" data-i18n="share.invoiceDesc">Client sees only the invoice with Download PDF — no other tabs</div>
+                    </div>
+                </div>
+            </label>
+
+            <!-- Language selector -->
+            <div class="share-lang-row">
+                <label class="share-lang-label" data-i18n="share.language">Language</label>
+                <select id="share-lang-select" class="share-lang-sel">
+                    <option value="en">English</option>
+                    <option value="de">Deutsch</option>
+                    <option value="sk">Slovenčina</option>
+                    <option value="es">Español</option>
+                </select>
+            </div>
+
+            <!-- Generated link output -->
+            <div class="share-link-row" id="share-link-row" style="display:none;">
+                <input type="text" id="share-link-output" class="share-link-input" readonly>
+                <button class="btn btn-secondary" onclick="copyShareLink()" data-i18n="share.copy">Copy</button>
+            </div>
+            <div class="share-link-status" id="share-link-status"></div>
+        </div>
+        <div class="share-modal-ft">
+            <button class="btn btn-primary" onclick="generateShareLink()" data-i18n="share.generate">Generate Link</button>
+            <button class="btn btn-secondary" onclick="closeShareModal()" data-i18n="share.close">Close</button>
+        </div>
+    </div>
+
+    <!-- ========================================
+         CLIENT INVOICE VIEW OVERLAY
+         Shown when URL has ?mode=client
+         Covers the whole app — client sees only the invoice
+         ======================================== -->
+    <div id="client-invoice-view" class="client-invoice-view" style="display:none;">
+        <div class="civ-header">
+            <div class="civ-brand">
+                <span class="civ-brand-name" id="civ-brand-name">Invoice</span>
+            </div>
+            <div class="civ-actions">
+                <button class="btn btn-primary" onclick="invPrint()" id="civ-download-btn">Download PDF</button>
+                <button class="btn btn-secondary" onclick="invPrint()" id="civ-print-btn">Print</button>
+            </div>
+        </div>
+        <div class="civ-body" id="civ-preview-container">
+            <!-- Invoice preview cloned here by JS -->
+        </div>
+    </div>
 
     <script src="script.js"></script>
 </body>

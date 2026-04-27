@@ -1187,8 +1187,8 @@ body.printing-invoice #inv-print-container a { display: inline !important; }
         margin-bottom: 10pt;
         padding-bottom: 10pt;
         border-bottom: 0.4pt solid #e0e0e0;
-        break-inside: avoid;
-        page-break-inside: avoid;
+        /* No break-inside here — experience blocks can be multi-page */
+        /* break-inside is only on individual bullet lines */
     }
     .pcv-exp:last-child { border-bottom: none; padding-bottom: 0; }
     .pcv-exp-header {
@@ -1238,10 +1238,7 @@ body.printing-invoice #inv-print-container a { display: inline !important; }
     }
 
     /* Education */
-    .pcv-edu {
-        margin-bottom: 8pt;
-        break-inside: avoid;
-    }
+    .pcv-edu { margin-bottom: 8pt; }
     .pcv-edu-school {
         font-size: 10pt;
         font-weight: 600;
@@ -1963,6 +1960,229 @@ section#invoices .inv-qr-note {
     section#invoices .inv-invoice-preview { padding: 18px; }
     section#invoices .inv-card-bd { padding: 18px; }
 }
+/* ========================================
+   SHARE MODAL
+   ======================================== */
+.share-overlay {
+    display: none;
+    position: fixed; inset: 0; z-index: 500;
+    background: rgba(0,0,0,.35);
+    backdrop-filter: blur(3px);
+    -webkit-backdrop-filter: blur(3px);
+}
+.share-overlay.open { display: block; }
+
+.share-modal {
+    display: none;
+    position: fixed;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%) scale(0.97);
+    z-index: 501;
+    width: 480px; max-width: calc(100vw - 32px);
+    background: var(--color-bg);
+    border: 1px solid var(--color-border);
+    border-radius: var(--r-xl);
+    box-shadow: var(--shadow-lg);
+    opacity: 0;
+    transition: opacity .18s ease, transform .18s ease;
+}
+.share-modal.open {
+    display: block; opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+}
+
+.share-modal-hd {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: var(--s-lg) var(--s-xl);
+    border-bottom: 1px solid var(--color-border-light);
+}
+.share-modal-title {
+    font-family: var(--font-display);
+    font-size: var(--fs-xl); font-weight: 500;
+    color: var(--color-black);
+}
+.share-modal-close {
+    display: flex; align-items: center; justify-content: center;
+    width: 30px; height: 30px;
+    background: transparent; border: none; cursor: pointer;
+    border-radius: var(--r-sm); color: var(--color-gray-light);
+    transition: background var(--t-fast), color var(--t-fast);
+}
+.share-modal-close:hover { background: var(--color-bg-muted); color: var(--color-black); }
+
+.share-modal-bd { padding: var(--s-xl); display: flex; flex-direction: column; gap: var(--s-md); }
+.share-modal-hint { font-size: var(--fs-sm); color: var(--color-gray); line-height: 1.6; }
+
+.share-option {
+    display: block; cursor: pointer;
+    border: 1.5px solid var(--color-border);
+    border-radius: var(--r-lg); padding: var(--s-md);
+    transition: border-color var(--t-fast), background var(--t-fast);
+    user-select: none;
+}
+.share-option:hover { border-color: var(--color-gray); background: var(--color-bg-alt); }
+.share-option input[type="radio"] { display: none; }
+.share-option:has(input:checked) {
+    border-color: var(--color-black);
+    background: var(--color-bg-alt);
+}
+.share-option-content { display: flex; align-items: flex-start; gap: var(--s-md); }
+.share-option-icon {
+    width: 36px; height: 36px; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    background: var(--color-bg-muted);
+    border: 1px solid var(--color-border-light);
+    border-radius: var(--r-md);
+    color: var(--color-gray);
+}
+.share-option:has(input:checked) .share-option-icon { background: var(--color-black); color: var(--color-bg); border-color: var(--color-black); }
+.share-option-label { font-size: var(--fs-base); font-weight: 600; color: var(--color-black); margin-bottom: 3px; }
+.share-option-desc  { font-size: 11px; color: var(--color-gray-light); line-height: 1.5; }
+
+.share-lang-row {
+    display: flex; align-items: center; gap: var(--s-md);
+    padding-top: var(--s-sm);
+}
+.share-lang-label { font-size: var(--fs-sm); font-weight: 500; color: var(--color-black); min-width: 70px; }
+.share-lang-sel {
+    padding: 7px 12px;
+    font-size: var(--fs-sm); font-family: var(--font-body);
+    border: 1px solid var(--color-border); border-radius: var(--r-sm);
+    background: var(--color-bg); color: var(--color-black);
+    outline: none; cursor: pointer;
+    transition: border-color var(--t-fast);
+}
+.share-lang-sel:focus { border-color: var(--color-black); }
+
+.share-link-row { display: flex; gap: var(--s-sm); align-items: center; }
+.share-link-input {
+    flex: 1; padding: 8px 12px;
+    font-size: 11.5px; font-family: var(--font-mono);
+    border: 1px solid var(--color-border); border-radius: var(--r-sm);
+    background: var(--color-bg-muted); color: var(--color-gray-dark);
+    outline: none;
+}
+.share-link-status { font-size: 11px; color: var(--color-gray-light); font-style: italic; min-height: 16px; }
+
+.share-modal-ft {
+    display: flex; gap: var(--s-sm);
+    padding: var(--s-lg) var(--s-xl);
+    border-top: 1px solid var(--color-border-light);
+}
+
+/* ========================================
+   CLIENT INVOICE VIEW
+   Full-screen overlay for ?mode=client
+   Hides the entire app, shows only the invoice
+   ======================================== */
+.client-invoice-view {
+    position: fixed; inset: 0; z-index: 200;
+    background: var(--color-bg-muted);
+    overflow-y: auto;
+    font-family: var(--font-body);
+}
+.civ-header {
+    position: sticky; top: 0; z-index: 10;
+    display: flex; justify-content: space-between; align-items: center;
+    padding: var(--s-md) var(--s-xl);
+    background: var(--color-bg);
+    border-bottom: 1px solid var(--color-border-light);
+    box-shadow: var(--shadow-xs);
+}
+.civ-brand-name {
+    font-family: var(--font-display);
+    font-size: var(--fs-xl); font-weight: 500;
+    color: var(--color-black);
+}
+.civ-actions { display: flex; gap: var(--s-sm); }
+.civ-body {
+    max-width: 860px; margin: var(--s-xl) auto;
+    padding: 0 var(--s-xl);
+}
+
+/* Presentation mode exit button — fixed top-right, always visible */
+.pres-exit-btn {
+    display: none;
+    position: fixed;
+    top: var(--s-lg);
+    right: var(--s-lg);
+    z-index: 1100;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 16px;
+    font-size: var(--fs-sm);
+    font-family: var(--font-body);
+    font-weight: 500;
+    background: var(--color-black);
+    color: var(--color-bg);
+    border: none;
+    border-radius: var(--r-md);
+    cursor: pointer;
+    box-shadow: var(--shadow-md);
+    transition: background var(--t-fast);
+}
+.pres-exit-btn:hover { background: var(--color-dark); }
+
+/* ── Share modal: Cover Letter row ── */
+.share-cover-row {
+    display: flex; flex-direction: column; gap: 4px;
+    padding: var(--s-sm) var(--s-md);
+    margin-top: calc(var(--s-sm) * -1);
+    background: var(--color-bg-alt);
+    border: 1px solid var(--color-border-light);
+    border-radius: 0 0 var(--r-lg) var(--r-lg);
+    border-top: none;
+}
+.share-cover-row.hidden { display: none !important; }
+.share-cover-check {
+    display: flex; align-items: center; gap: var(--s-sm);
+    font-size: var(--fs-sm); font-weight: 500; color: var(--color-black);
+    cursor: pointer; user-select: none;
+}
+.share-cover-check input[type="checkbox"] {
+    width: 15px; height: 15px; accent-color: var(--color-black); cursor: pointer;
+}
+.share-cover-hint { font-size: 11px; color: var(--color-gray-light); line-height: 1.4; padding-left: 23px; }
+
+/* ── Public mode: Cover Letter tab hidden by default ──
+   Added via .no-cover class on body when ?cover param absent.
+   Removed when ?cover=1 in URL → tab shown as read-only.
+── */
+.public-mode.no-cover [data-tab="cover-letter"] { display: none !important; }
+.public-mode.no-cover #cover-letter             { display: none !important; }
+
+/* ── Public mode: Cover Letter tab shown but read-only ── */
+.public-mode .cover-letter-actions { display: none !important; }
+.public-mode .cover-letter-form    { display: none !important; }
+.public-mode .cover-letter-output > label { display: none !important; }
+.public-mode .cl-textarea {
+    background: var(--color-bg) !important;
+    border-color: var(--color-border-light) !important;
+    color: var(--color-black) !important;
+    cursor: default; pointer-events: none; resize: none;
+    min-height: 500px;
+}
+
+
+/* ── CV public download bar ──
+   Hidden in admin mode, shown in public/recruiter mode ── */
+.cv-public-download { display: none; margin-bottom: var(--s-lg); }
+.public-mode .cv-public-download { display: flex; }
+
+/* ── Share button — more visible ── */
+#share-btn {
+    background: var(--color-black) !important;
+    color: var(--color-bg) !important;
+    border-color: var(--color-black) !important;
+    width: auto !important;
+    padding: 6px 14px !important;
+    font-size: var(--fs-sm) !important;
+    font-weight: 500 !important;
+    gap: 6px;
+}
+#share-btn::after { content: "Share"; }
+#share-btn:hover { background: var(--color-dark) !important; }
+
 /* ========================================
    CONTACT ITEM — EMPTY STATE
    ======================================== */

@@ -887,44 +887,81 @@ document.addEventListener('DOMContentLoaded', () => {
 function checkURLParams() {
     const params = new URLSearchParams(window.location.search);
 
+    // ?mode=client — show invoice-only overlay
+    if (params.get('mode') === 'client') {
+        setTimeout(() => activateClientInvoiceMode(), 150);
+        return;
+    }
+
+    // ?view=public — recruiter-facing view
     if (params.get('view') === 'public') {
-        const lang = params.get('lang') || settings.language || 'en';
+        const lang       = params.get('lang') || settings.language || 'en';
+        const hasCover   = params.get('cover') === '1';  // cover letter included?
 
         isPublicMode = true;
         document.body.classList.add('public-mode');
 
-        // Hide settings tab and invoices tab in public/recruiter mode
-        // Invoices is internal-only — must never appear in recruiter-facing view
+        // No cover param → hide cover letter tab
+        if (!hasCover) {
+            document.body.classList.add('no-cover');
+        }
+
         const settingsTab = document.getElementById('settings-tab-btn');
         if (settingsTab) settingsTab.style.display = 'none';
         const invoicesTab = document.getElementById('invoices-tab-btn');
         if (invoicesTab) invoicesTab.style.display = 'none';
 
-        // Activate toggle button appearance
         const toggleBtn = document.getElementById('public-mode-toggle');
         if (toggleBtn) {
             toggleBtn.classList.add('active');
             toggleBtn.title = translations[lang]?.publicMode?.exitPublic || 'Exit Public View';
         }
 
-        // Apply language from URL param
         if (lang !== currentLanguage) {
             updateLanguage(lang);
-            document.getElementById('header-language-select').value = lang;
+            const sel = document.getElementById('header-language-select');
+            if (sel) sel.value = lang;
         }
-
-        // Land on CV tab
         switchTab('cv');
     }
 }
 
-/** Toggle public/edit mode manually via the eye button in the header. */
+// Shows full-screen invoice overlay for ?mode=client
+// Client sees ONLY the invoice — no app, no other tabs
+function activateClientInvoiceMode() {
+    const overlay = document.getElementById('client-invoice-view');
+    if (!overlay) return;
+
+    // Set brand name in client header
+    const brandEl = document.getElementById('civ-brand-name');
+    if (brandEl) brandEl.textContent = document.getElementById('brandName')?.value || 'Invoice';
+
+    // Update button labels to match invoice language
+    const invLang = (typeof INV !== 'undefined') ? INV._getLang() : 'en';
+    const dlBtn = document.getElementById('civ-download-btn');
+    const prBtn = document.getElementById('civ-print-btn');
+    if (invLang === 'sk') {
+        if (dlBtn) dlBtn.textContent = 'Stiahnuť PDF';
+        if (prBtn) prBtn.textContent = 'Tlačiť';
+    }
+
+    // Clone live invoice preview into overlay
+    const container = document.getElementById('civ-preview-container');
+    const source    = document.getElementById('invoiceView');
+    if (container && source) {
+        const clone = source.cloneNode(true);
+        clone.removeAttribute('id');
+        container.innerHTML = '';
+        container.appendChild(clone);
+    }
+
+    overlay.style.display = 'block';
+}
+
 function togglePublicMode() {
     isPublicMode = !isPublicMode;
     document.body.classList.toggle('public-mode', isPublicMode);
 
-    // Hide/show both settings and invoices tabs based on mode
-    // Invoices tab must never be visible in recruiter/public mode
     const settingsTab = document.getElementById('settings-tab-btn');
     if (settingsTab) settingsTab.style.display = isPublicMode ? 'none' : '';
     const invoicesTab = document.getElementById('invoices-tab-btn');
@@ -937,42 +974,102 @@ function togglePublicMode() {
             ? translations[currentLanguage].publicMode.exitPublic
             : 'Toggle public view';
     }
-
     if (isPublicMode) switchTab('cv');
 }
 
-// ========================================
-// GENERATE & COPY PUBLIC LINK
-// Settings → Shareable Public Link
-// Produces: currentURL?view=public&lang=XX
-// ========================================
-function generatePublicLink() {
-    const base  = window.location.origin + window.location.pathname;
-    const link  = `${base}?view=public&lang=${currentLanguage}`;
+// ── SHARE MODAL ──────────────────────────────────────────────────
+function openShareModal() {
+    const sel = document.getElementById('share-lang-select');
+    if (sel) sel.value = currentLanguage;
+    const row = document.getElementById('share-link-row');
+    const status = document.getElementById('share-link-status');
+    if (row) row.style.display = 'none';
+    if (status) status.textContent = '';
 
-    const display = document.getElementById('public-link-display');
-    const input   = document.getElementById('public-link-input');
+    // Show cover letter option only when CV type is selected
+    updateShareCoverVisibility();
 
-    if (display && input) {
-        display.style.display = 'flex';
-        input.value = link;
-        try { input.select(); } catch(e) {}
+    document.getElementById('share-modal-overlay')?.classList.add('open');
+    document.getElementById('share-modal')?.classList.add('open');
+}
+
+function updateShareCoverVisibility() {
+    const type = document.querySelector('input[name="share-type"]:checked')?.value || 'cv';
+    const coverRow = document.getElementById('share-cover-row');
+    if (coverRow) coverRow.classList.toggle('hidden', type !== 'cv');
+}
+
+// Wire up radio buttons to show/hide cover letter option
+document.addEventListener('DOMContentLoaded', () => {
+    document.querySelectorAll('input[name="share-type"]').forEach(radio => {
+        radio.addEventListener('change', updateShareCoverVisibility);
+    });
+});
+
+function closeShareModal() {
+    document.getElementById('share-modal-overlay')?.classList.remove('open');
+    document.getElementById('share-modal')?.classList.remove('open');
+}
+
+function generateShareLink() {
+    const type        = document.querySelector('input[name="share-type"]:checked')?.value || 'cv';
+    const lang        = document.getElementById('share-lang-select')?.value || currentLanguage;
+    const includeCover = document.getElementById('share-include-cover')?.checked || false;
+    const base        = window.location.origin + window.location.pathname;
+    let link = '';
+
+    if (type === 'cv') {
+        // ?view=public&lang=XX  + optional &cover=1
+        link = `${base}?view=public&lang=${lang}`;
+        if (includeCover) link += '&cover=1';
+    } else {
+        link = (typeof INV !== 'undefined')
+            ? INV._buildClientLink(lang)
+            : `${base}?mode=client&lang=${lang}`;
     }
 
+    const output = document.getElementById('share-link-output');
+    const row    = document.getElementById('share-link-row');
+    const status = document.getElementById('share-link-status');
+    if (output) output.value = link;
+    if (row)    row.style.display = 'flex';
+
+    navigator.clipboard.writeText(link).then(() => {
+        if (status) status.textContent = '✓ Link copied to clipboard';
+    }).catch(() => { if (output) output.select(); });
+}
+
+function copyShareLink() {
+    const output = document.getElementById('share-link-output');
+    const status = document.getElementById('share-link-status');
+    if (!output?.value) return;
+    navigator.clipboard.writeText(output.value).then(() => {
+        if (status) { status.textContent = '✓ Copied!'; setTimeout(() => status.textContent = '', 2000); }
+    }).catch(() => { output.select(); document.execCommand('copy'); });
+}
+
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+        closeShareModal();
+        if (isPresentationMode) exitPresentationMode();
+    }
+});
+
+function generatePublicLink() {
+    const base = window.location.origin + window.location.pathname;
+    const link = `${base}?view=public&lang=${currentLanguage}`;
+    const display = document.getElementById('public-link-display');
+    const input   = document.getElementById('public-link-input');
+    if (display && input) { display.style.display = 'flex'; input.value = link; try { input.select(); } catch(e) {} }
     return link;
 }
 
 function copyPublicLink() {
     const input = document.getElementById('public-link-input');
     const link  = (input && input.value) ? input.value : generatePublicLink();
-
     navigator.clipboard.writeText(link).then(() => {
-        const msg = translations[currentLanguage]?.settings?.linkCopied || 'Link copied!';
-        showToast(msg);
-    }).catch(() => {
-        // Fallback: select + copy command
-        if (input) { input.select(); document.execCommand('copy'); }
-    });
+        showToast(translations[currentLanguage]?.settings?.linkCopied || 'Link copied!');
+    }).catch(() => { if (input) { input.select(); document.execCommand('copy'); } });
 }
 
 // ========================================
@@ -1527,8 +1624,8 @@ function buildPrintCV() {
     // Education — plain block
     const eduHtml = cvData.education.map(e => `
         <div class="pcv-edu">
-            <span class="pcv-edu-school">${e.school}</span>
-            <span class="pcv-edu-details">${e.details}</span>
+            <div class="pcv-edu-school">${e.school}</div>
+            <div class="pcv-edu-details">${e.details}</div>
         </div>`).join('');
 
     // Tools — CSS columns
@@ -1683,9 +1780,11 @@ function prevSlide() { goToSlide(currentSlide - 1); }
 function togglePresentationMode() {
     const dc  = document.querySelector('.deck-container');
     const btn = document.getElementById('deck-pres-btn');
+    const exitBtn = document.getElementById('pres-exit-btn');
     if (!isPresentationMode) {
         dc.classList.add('presentation-mode');
         if (btn) btn.querySelector('[data-i18n]').textContent = translations[currentLanguage].deck.exitPresentation;
+        if (exitBtn) exitBtn.style.display = 'flex';
         isPresentationMode = true;
     } else {
         exitPresentationMode();
@@ -1695,8 +1794,10 @@ function togglePresentationMode() {
 function exitPresentationMode() {
     const dc  = document.querySelector('.deck-container');
     const btn = document.getElementById('deck-pres-btn');
+    const exitBtn = document.getElementById('pres-exit-btn');
     dc.classList.remove('presentation-mode');
     if (btn) btn.querySelector('[data-i18n]').textContent = translations[currentLanguage].deck.presentationMode;
+    if (exitBtn) exitBtn.style.display = 'none';
     isPresentationMode = false;
 }
 
@@ -1931,6 +2032,26 @@ function loadCoverLetter() {
     if (saved) {
         const el = document.getElementById('cl-preview');
         if (el) el.value = saved;
+    } else {
+        // Pre-fill with a universal placeholder so it doesn't look empty
+        // User can generate a real one or clear this
+        const el = document.getElementById('cl-preview');
+        if (el && !el.value) {
+            el.value = [
+                'Dear Hiring Manager,',
+                '',
+                'I am writing to express my interest in the Business Development Analyst position at [Company Name], as advertised on [Source].',
+                '',
+                'With my background in business development support, commercial operations, and market research, I bring a structured, execution-focused approach to every commercial activity I support.',
+                '',
+                'My core strengths include pipeline management, CRM discipline, market segmentation, reporting, and multilingual communication across English, German, Slovak, and Spanish. I am comfortable leveraging OpenAI tools to support research efficiency, structured drafting, and information synthesis.',
+                '',
+                'I would welcome the opportunity to discuss how my experience aligns with your team\'s goals.',
+                '',
+                'Sincerely,',
+                'Andrej Kneisl'
+            ].join('\n');
+        }
     }
 
     const formData = localStorage.getItem('coverLetterFormData');
@@ -2181,12 +2302,26 @@ const INV = (() => {
 
     function applyToPreview() { applyView(readForm()); }
 
-    // ── Fill form from URL query params (client link) ─────────────
+    // ── Fill form from URL query params ──────────────────────────
+    // Supports compact ?d=BASE64_JSON format (new) and legacy ?key=val (old)
     function fillFromQuery() {
         const p = new URLSearchParams(location.search);
+        const d = p.get('d');
+        if (d) {
+            try {
+                const payload = JSON.parse(decodeURIComponent(escape(atob(d))));
+                const fields = ['brandName','brandTagline','inv','issue','serviceDate','due',
+                    'projectName','amount','currency','notes','supplierName','supplierEmail',
+                    'supplierAddress','supplierTax','supplierVatNote','buyerType','buyerDisplay',
+                    'buyerAddress','buyerTax','buyerVat','contactName','contactEmail','bankName','iban','bic'];
+                fields.forEach(k => { if (payload[k] !== undefined && $i(k)) $i(k).value = payload[k]; });
+                if (payload.lang) invLang = (payload.lang === 'en') ? 'en' : 'sk';
+            } catch(e) { console.warn('Could not decode invoice link:', e); }
+            return;
+        }
+        // Legacy format
         const map = {
-            brandName:'brandName', brandTagline:'brandTagline', brandLogo:'brandLogo',
-            themePage:'themePage', themeHeader:'themeHeader', themeAccent:'themeAccent', themeBtn:'themeBtn',
+            brandName:'brandName', brandTagline:'brandTagline',
             inv:'inv', issue:'issue', serviceDate:'serviceDate', due:'due',
             projectName:'projectName', amount:'amount', currency:'currency', notes:'notes',
             supplierName:'supplierName', supplierEmail:'supplierEmail',
@@ -2194,18 +2329,9 @@ const INV = (() => {
             buyerType:'buyerType', buyerDisplay:'buyerDisplay',
             buyerAddress:'buyerAddress', buyerTax:'buyerTax', buyerVat:'buyerVat',
             contactName:'contactName', contactEmail:'contactEmail',
-            bankName:'bankName', iban:'iban', bic:'bic', qr:'qr'
+            bankName:'bankName', iban:'iban', bic:'bic'
         };
-        Object.entries(map).forEach(([k, id]) => {
-            const v = p.get(k);
-            if (v !== null && $i(id)) $i(id).value = v;
-        });
-        const qrEnabled = p.get('qrEnabled');
-        if (qrEnabled !== null && $i('qrEnabled')) {
-            $i('qrEnabled').checked = (qrEnabled === '1' || qrEnabled === 'true');
-        }
-        const qd = p.get('qrDataUrl');
-        if (qd) qrUploadedDataUrl = qd;
+        Object.entries(map).forEach(([k, id]) => { const v = p.get(k); if (v !== null && $i(id)) $i(id).value = v; });
     }
 
     // ── Client mode detection ─────────────────────────────────────
@@ -2739,5 +2865,32 @@ ${bodyHtml}
     }
 
     // Expose public interface
-    return { init, prefillFromPersonalInfo, syncLangWithApp };
+    return {
+        init,
+        prefillFromPersonalInfo,
+        syncLangWithApp,
+        // _buildClientLink: encodes invoice as base64 JSON → one short ?d= param
+        _buildClientLink: (lang) => {
+            const data = readForm();
+            const payload = {
+                lang: lang || invLang,
+                brandName: data.brandName, brandTagline: data.brandTagline,
+                inv: data.inv, issue: data.issue, serviceDate: data.serviceDate,
+                due: data.due, projectName: data.projectName,
+                amount: data.amount, currency: data.currency,
+                notes: document.getElementById('notes')?.value || '',
+                supplierName: data.supplierName, supplierEmail: data.supplierEmail,
+                supplierAddress: data.supplierAddress, supplierTax: data.supplierTax,
+                supplierVatNote: data.supplierVatNote,
+                buyerType: data.buyerType, buyerDisplay: data.buyerDisplay,
+                buyerAddress: data.buyerAddress, buyerTax: data.buyerTax,
+                buyerVat: data.buyerVat,
+                contactName: data.contactName, contactEmail: data.contactEmail,
+                bankName: data.bankName, iban: data.iban, bic: data.bic,
+            };
+            const encoded = btoa(unescape(encodeURIComponent(JSON.stringify(payload))));
+            return location.origin + location.pathname + '?mode=client&d=' + encoded;
+        },
+        _getLang: () => invLang,
+    };
 })();
