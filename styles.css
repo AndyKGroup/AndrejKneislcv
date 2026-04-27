@@ -997,17 +997,12 @@ body {
 
 /* ========================================
    PRINT — CV EXPORT MODE (body.printing-cv)
-   Hides entire live UI, shows only #cv-print-container
+   Uses @media print to hide everything except #cv-print-container.
+   No display:block nuclear option — elements keep their natural display values.
+   This prevents Chrome's print duplication bug on <b>, <td>, column-count.
    ======================================== */
-body.printing-cv * { display: none !important; }
-body.printing-cv #cv-print-container,
-body.printing-cv #cv-print-container * { display: block !important; }
-
-/* Inline elements inside print container */
-body.printing-cv #cv-print-container a,
-body.printing-cv #cv-print-container span,
-body.printing-cv #cv-print-container strong,
-body.printing-cv #cv-print-container em { display: inline !important; }
+/* cv-print-container is hidden in normal view */
+#cv-print-container { display: none; }
 
 /* ========================================
    PRINT — INVOICE EXPORT MODE (body.printing-invoice)
@@ -1034,6 +1029,13 @@ body.printing-invoice #inv-print-container a { display: inline !important; }
 
 
 @media print {
+
+    /* ── CV EXPORT MODE: hide everything, show only print container ──
+       No * { display: block } nuclear approach.
+       Elements keep natural display values → no Chrome duplication bug.
+    ── */
+    body.printing-cv * { display: none !important; }
+    body.printing-cv #cv-print-container { display: block !important; }
 
     /* ── A4 page ── */
     @page {
@@ -1159,23 +1161,14 @@ body.printing-invoice #inv-print-container a { display: inline !important; }
         widows: 3;
     }
 
-    /* Two-column lists — using CSS columns, NOT grid.
-       CSS columns are safe in Chrome PDF, grid is not. */
-    .pcv-two-col {
-        -webkit-column-count: 2;
-        column-count: 2;
-        -webkit-column-gap: 28pt;
-        column-gap: 28pt;
-        break-inside: auto;
-    }
+    /* Two-column table — replaces column-count to avoid Chrome duplication bug */
+    .pcv-two-col-tbl { width: 100%; border-collapse: collapse; }
+    .pcv-col-cell { width: 50%; vertical-align: top; padding: 1pt 0; }
     .pcv-two-col-item {
         font-size: 9.5pt;
         line-height: 1.5;
         padding: 1.5pt 0;
         color: #222;
-        break-inside: avoid;
-        page-break-inside: avoid;
-        display: block !important;
     }
     .pcv-two-col-item::before {
         content: '– ';
@@ -1225,47 +1218,21 @@ body.printing-invoice #inv-print-container a { display: inline !important; }
         font-size: 9.5pt;
         line-height: 1.6;
         color: #222;
-        padding-left: 12pt;
-        position: relative;
-        margin-bottom: 1.5pt;
-        break-inside: avoid;
+        padding-left: 0;
+        margin-bottom: 2pt;
     }
     .pcv-exp-bullets li::before {
-        content: '–';
-        position: absolute;
-        left: 0;
+        content: '– ';
         color: #aaa;
     }
 
-    /* Education */
-    .pcv-edu { margin-bottom: 8pt; }
-    .pcv-edu-school {
-        font-size: 10pt;
-        font-weight: 600;
-        color: #000;
-        display: block !important;
-    }
-    .pcv-edu-details {
-        font-size: 9pt;
-        color: #555;
-        display: block !important;
-        margin-top: 2pt;
-    }
+    /* Education — table layout */
+    .pcv-edu-tbl { width: 100%; border-collapse: collapse; margin-bottom: 4pt; }
+    .pcv-edu-school { font-size: 10pt; font-weight: 600; color: #000; padding: 1pt 0; vertical-align: top; }
+    .pcv-edu-details { font-size: 9pt; color: #555; padding: 0 0 1pt 0; vertical-align: top; }
 
-    /* Languages — simple block per item (NO grid) */
-    .pcv-lang-row {
-        -webkit-column-count: 2;
-        column-count: 2;
-        -webkit-column-gap: 28pt;
-        column-gap: 28pt;
-    }
-    .pcv-lang-item {
-        font-size: 9.5pt;
-        color: #222;
-        padding: 2pt 0;
-        break-inside: avoid;
-        display: block !important;
-    }
+    /* Languages — table layout (no column-count) */
+    .pcv-lang-item { font-size: 9.5pt; color: #222; padding: 2pt 0; }
 
     /* ── DECK PRINT MODE (body.printing-deck) ──
        All slides become visible, one per page.

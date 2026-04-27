@@ -678,6 +678,7 @@ const cvData = {
         'Commercial Operations',
         'Sales Operations Support',
         'Market Research',
+        'Competitive Research',
         'Market Segmentation',
         'Pipeline Management',
         'CRM Discipline',
@@ -685,6 +686,9 @@ const cvData = {
         'Follow-Up Process Logic',
         'Reporting & KPI Visibility',
         'Messaging Structure',
+        'Business Strategy Drafting',
+        'Proposal Writing',
+        'Stakeholder Communication',
         'Process Improvement',
         'Commercial Insight',
         'Multilingual Communication',
@@ -1580,8 +1584,7 @@ function buildPrintCV() {
         if (ts) tsHtml = `<div class="pcv-timestamp">${t.cv.timestamp || ''}${ts}</div>`;
     }
 
-    // Contact items — simple block rows, no grid
-    // Only include items with non-empty values
+    // Contact items — skip empty
     const rawContacts = [
         { label: t.cv.email,          value: info.primaryEmail   || '', href: info.primaryEmail   ? `mailto:${info.primaryEmail}` : null },
         { label: t.cv.secondaryEmail, value: info.secondaryEmail || '', href: info.secondaryEmail ? `mailto:${info.secondaryEmail}` : null },
@@ -1598,17 +1601,55 @@ function buildPrintCV() {
                 : `<span class="pcv-contact-value">${c.value}</span>`}
         </div>`).join('');
 
-    // Photo — only include if path non-empty AND showPhoto AND premium mode
+    // Photo
     const photoPath = (info.profilePhoto || '').trim();
     const photoHtml = (showPhoto && photoPath)
         ? `<img src="${photoPath}" alt="${info.fullName || ''}" style="width:80pt;height:80pt;object-fit:cover;filter:grayscale(100%);border:0.5pt solid #ccc;float:right;margin-left:12pt;margin-bottom:4pt;" onerror="this.style.display='none';">`
         : '';
 
-    // Strengths — CSS columns, NOT grid
-    const strengthsHtml = cvData.strengths.map(s =>
-        `<div class="pcv-two-col-item">${s}</div>`).join('');
+    // ── Strengths — 2-col TABLE (no column-count) ──
+    // Split into 2 columns manually to avoid Chrome column-count duplication bug
+    const half = Math.ceil(cvData.strengths.length / 2);
+    const strengthsLeft  = cvData.strengths.slice(0, half);
+    const strengthsRight = cvData.strengths.slice(half);
+    const maxRows = Math.max(strengthsLeft.length, strengthsRight.length);
+    let strengthsRows = '';
+    for (let i = 0; i < maxRows; i++) {
+        const l = strengthsLeft[i]  ? `<div class="pcv-two-col-item">${strengthsLeft[i]}</div>`  : '';
+        const r = strengthsRight[i] ? `<div class="pcv-two-col-item">${strengthsRight[i]}</div>` : '';
+        strengthsRows += `<tr><td class="pcv-col-cell">${l}</td><td class="pcv-col-cell">${r}</td></tr>`;
+    }
+    const strengthsHtml = `<table class="pcv-two-col-tbl" cellpadding="0" cellspacing="0">${strengthsRows}</table>`;
 
-    // Experience
+    // ── Tools — 2-col TABLE ──
+    const toolsArr = cvData.tools;
+    const halfT = Math.ceil(toolsArr.length / 2);
+    const toolsLeft  = toolsArr.slice(0, halfT);
+    const toolsRight = toolsArr.slice(halfT);
+    const maxToolRows = Math.max(toolsLeft.length, toolsRight.length);
+    let toolsRows = '';
+    for (let i = 0; i < maxToolRows; i++) {
+        const l = toolsLeft[i]  ? `<div class="pcv-two-col-item">${toolsLeft[i]}</div>`  : '';
+        const r = toolsRight[i] ? `<div class="pcv-two-col-item">${toolsRight[i]}</div>` : '';
+        toolsRows += `<tr><td class="pcv-col-cell">${l}</td><td class="pcv-col-cell">${r}</td></tr>`;
+    }
+    const toolsHtml = `<table class="pcv-two-col-tbl" cellpadding="0" cellspacing="0">${toolsRows}</table>`;
+
+    // ── Languages — 2-col TABLE, no <b> tags (plain text avoids Chrome inline/block conflict) ──
+    const langsArr = cvData.languages;
+    const halfL = Math.ceil(langsArr.length / 2);
+    const langsLeft  = langsArr.slice(0, halfL);
+    const langsRight = langsArr.slice(halfL);
+    const maxLangRows = Math.max(langsLeft.length, langsRight.length);
+    let langsRows = '';
+    for (let i = 0; i < maxLangRows; i++) {
+        const l = langsLeft[i]  ? `<div class="pcv-lang-item">${langsLeft[i].language}: ${langsLeft[i].level}</div>`  : '';
+        const r = langsRight[i] ? `<div class="pcv-lang-item">${langsRight[i].language}: ${langsRight[i].level}</div>` : '';
+        langsRows += `<tr><td class="pcv-col-cell">${l}</td><td class="pcv-col-cell">${r}</td></tr>`;
+    }
+    const langsHtml = `<table class="pcv-two-col-tbl" cellpadding="0" cellspacing="0">${langsRows}</table>`;
+
+    // ── Experience ──
     const expHtml = cvData.experience.map(exp => `
         <div class="pcv-exp">
             <div class="pcv-exp-header">
@@ -1621,20 +1662,19 @@ function buildPrintCV() {
             </ul>
         </div>`).join('');
 
-    // Education — plain block
-    const eduHtml = cvData.education.map(e => `
-        <div class="pcv-edu">
-            <div class="pcv-edu-school">${e.school}</div>
-            <div class="pcv-edu-details">${e.details}</div>
-        </div>`).join('');
+    // ── Education — single-column table (div triplication fix) ──
+    const eduHtml = '<table class="pcv-edu-tbl" cellpadding="0" cellspacing="0">' +
+        cvData.education.map(e =>
+            `<tr><td class="pcv-edu-school">${e.school}</td></tr>` +
+            `<tr><td class="pcv-edu-details">${e.details}</td></tr>` +
+            `<tr><td style="height:5pt;"></td></tr>`
+        ).join('') +
+        '</table>';
 
-    // Tools — CSS columns
-    const toolsHtml = cvData.tools.map(tool =>
-        `<div class="pcv-two-col-item">${tool}</div>`).join('');
-
-    // Languages — CSS columns (safe, no grid)
-    const langsHtml = cvData.languages.map(l =>
-        `<div class="pcv-lang-item"><strong>${l.language}:</strong> ${l.level}</div>`).join('');
+    // ── Section title helper ──
+    const sec = (title, content) => `
+        <div class="pcv-section-title">${title}</div>
+        ${content}`;
 
     return `
         <div class="pcv-header">
@@ -1647,35 +1687,12 @@ function buildPrintCV() {
             </div>
         </div>
 
-        <div class="pcv-section">
-            <div class="pcv-section-title">${t.cv.summary}</div>
-            <p class="pcv-summary">${t.cv.summaryText}</p>
-        </div>
-
-        <div class="pcv-section">
-            <div class="pcv-section-title">${t.cv.strengths}</div>
-            <div class="pcv-two-col">${strengthsHtml}</div>
-        </div>
-
-        <div class="pcv-section">
-            <div class="pcv-section-title">${t.cv.experience}</div>
-            ${expHtml}
-        </div>
-
-        <div class="pcv-section">
-            <div class="pcv-section-title">${t.cv.education}</div>
-            ${eduHtml}
-        </div>
-
-        <div class="pcv-section">
-            <div class="pcv-section-title">${t.cv.tools}</div>
-            <div class="pcv-two-col">${toolsHtml}</div>
-        </div>
-
-        <div class="pcv-section">
-            <div class="pcv-section-title">${t.cv.languages}</div>
-            <div class="pcv-lang-row">${langsHtml}</div>
-        </div>
+        ${sec(t.cv.summary, `<p class="pcv-summary">${t.cv.summaryText}</p>`)}
+        ${sec(t.cv.strengths, strengthsHtml)}
+        ${sec(t.cv.experience, expHtml)}
+        ${sec(t.cv.education, eduHtml)}
+        ${sec(t.cv.tools, toolsHtml)}
+        ${sec(t.cv.languages, langsHtml)}
     `;
 }
 
